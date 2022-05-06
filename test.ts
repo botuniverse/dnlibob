@@ -1,6 +1,6 @@
 import { OneBot, ImplConfig, DefaultHandler } from "./src/mod.ts"
 
-let ob = new OneBot({
+const ob = new OneBot({
     impl: "idr",
     platform: "telegram",
     self_id: "114514",
