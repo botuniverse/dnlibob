@@ -30,4 +30,4 @@ ob.run()
 
 ## 鸣谢
 
-本项目的部分灵感来自 Walle-core 项目，在此向其开发者致以谢意。此外，感谢 shigma 对本项目 TypeScript 方面的问题进行指导。
+本项目的诞生离不开大家的帮助。shigma 对本项目 TypeScript 方面的问题进行的指导。以及 abrahum 对 API 方面进行问题的指导。在此一并致以谢意。
