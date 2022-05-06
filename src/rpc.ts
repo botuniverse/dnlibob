@@ -78,22 +78,25 @@ class WsRegistry<E, A, R> extends Array {
                     logger.info(`新的 websocket 连接来自 ${ctx.request.ip}`)
                 })
                 ctx.socket!.addEventListener("message", (e) => {
-                    let parsed: A | null
-                    if (typeof e.data.action !== "undefined") {
-                        try {
-                            parsed = JSON.parse(e.data)
-                        } catch (err) {
-                            logger.warn(`JSON 反序列化失败: "${e.data}"`)
+                    let parsed: any
+                    try {
+                        parsed = JSON.parse(e.data)
+                        if (typeof parsed?.action === "undefined" || typeof parsed.params === "undefined") {
+                            logger.warn(`请求格式不正确: "${e.data}"`)
                             parsed = null
                         }
-                    } else {
-                        logger.warn(`请求格式不正确: "${e.data}"`)
+                    } catch (err) {
+                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
                         parsed = null
                     }
-                    //typeof e.data === "string" ? (parsed = JSON.parse(e.data)) : (parsed = msgpack.decode(e.data));
                     if (parsed !== null) {
+                        let echo: Record<string, any> = {}
+                        if (typeof parsed.echo !== "undefined") {
+                            echo = { echo: parsed.echo }
+                            delete parsed.echo
+                        }
                         let data = this.action_handler.handle(parsed, this.ob)
-                        ctx.socket!.send(JSON.stringify(data))
+                        ctx.socket!.send(JSON.stringify(Object.assign(data, echo)))
                     }
                 })
             }
@@ -127,23 +130,27 @@ class WsrRegistry<E, A, R> extends Array {
                 this.sockets.push(socket)
                 socket.addEventListener("open", () => logger.info(`成功连接到 ${config.url}`))
                 socket.addEventListener("message", (e) => {
-                    let parsed: A | null
-                    if (typeof e.data.action !== "undefined") {
-                        try {
-                            parsed = JSON.parse(e.data)
-                        } catch (err) {
-                            logger.warn(`JSON 反序列化失败: "${e.data}"`)
+                    let parsed: any
+                    try {
+                        parsed = JSON.parse(e.data)
+                        if (typeof parsed?.action === "undefined" || typeof parsed.params === "undefined") {
+                            logger.warn(`请求格式不正确: "${e.data}"`)
                             parsed = null
                         }
-                    } else {
-                        logger.warn(`请求格式不正确: "${e.data}"`)
+                    } catch (err) {
+                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
                         parsed = null
                     }
-                    //typeof e.data === "string" ? (parsed = JSON.parse(e.data)) : (parsed = msgpack.decode(e.data));
                     if (parsed !== null) {
+                        let echo: Record<string, any> = {}
+                        if (typeof parsed.echo !== "undefined") {
+                            echo = { echo: parsed.echo }
+                            delete parsed.echo
+                        }
                         let data = this.action_handler.handle(parsed, this.ob)
-                        socket.send(JSON.stringify(data))
+                        socket.send(JSON.stringify(Object.assign(data, echo)))
                     }
+                    //typeof e.data === "string" ? (parsed = JSON.parse(e.data)) : (parsed = msgpack.decode(e.data));
                 })
             }, del_callback: (socket) => {
                 const index = this.sockets.findIndex((element) => element === socket)

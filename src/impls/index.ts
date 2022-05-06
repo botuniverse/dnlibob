@@ -18,6 +18,11 @@ export namespace CustomOneBot {
 
 const logger = new Logger("Teyda_libonebot")
 
+/// OneBot Implementation 实例
+///
+/// E: Event 可以参考 src/event/index.ts
+/// A: Action 可以参考 src/action.ts
+/// R: ActionResp 可以参考 src/resp.ts
 export class CustomOneBot<E, A, R> {
     #rpc: Rpc<E, A, R>
     public impl: string
