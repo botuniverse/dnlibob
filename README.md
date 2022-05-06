@@ -15,7 +15,7 @@ Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平�
 ```ts
 import { OneBot, ImplConfig, DefaultHandler } from "./src/mod.ts"
 
-let ob = new OneBot({
+const ob = new OneBot({
     impl: "idr",
     platform: "telegram",
     self_id: "114514",
