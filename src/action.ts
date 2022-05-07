@@ -89,14 +89,33 @@ export interface SetGroupName extends Extended {
     group_name: string,
 }
 
-export interface UploadFile extends Extended {
-    type: "url" | "path" | "data" | string,
+export type UploadFile = {
+    type: "url",
     name: string,
-    url?: String,
+    url: String,
     headers?: Record<string, string>,
-    path?: string,
-    data?: number[],
     sha256?: string,
+    [prop: string]: any
+} | {
+    type: "path",
+    name: string,
+    headers?: Record<string, string>,
+    path: string,
+    sha256?: string,
+    [prop: string]: any
+} | {
+    type: "data",
+    name: string,
+    headers?: Record<string, string>,
+    data: number[],
+    sha256?: string,
+    [prop: string]: any
+} | {
+    type: string,
+    name: string,
+    headers?: Record<string, string>,
+    sha256?: string,
+    [prop: string]: any
 }
 
 export interface GetFile extends Extended {
