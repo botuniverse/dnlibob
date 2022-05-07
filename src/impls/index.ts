@@ -24,7 +24,7 @@ const logger = new Logger("Teyda_libonebot")
 /// A: Action 可以参考 src/action.ts
 /// R: ActionResp 可以参考 src/resp.ts
 export class CustomOneBot<E, A, R> {
-    #rpc: Rpc<E, A, R>
+    #rpc: Rpc<E, A, R> | null = null
     public impl: string
     public platform: string
     public self_id: string
@@ -39,18 +39,24 @@ export class CustomOneBot<E, A, R> {
         this.self_id = config.self_id
         this.config = config.config
         this.action_handler = config.action_handler
-        this.#rpc = new Rpc<E, A, R>(this.action_handler, this)
     }
     run(): void {
-        logger.info(`${logger.red(this.impl)} 正在启动`)
-        this.#rpc.http(this.config.http)
-        this.#rpc.webhook(this.config.http_webhook)
+        logger.info(`${logger.red(this.impl)}:${logger.yellow(this.platform)}:${logger.blue(this.self_id)} 正在启动`)
+        this.#rpc = new Rpc<E, A, R>(this.action_handler, this)
+        //this.#rpc.http(this.config.http)
+        //this.#rpc.webhook(this.config.http_webhook)
         this.#rpc.ws(this.config.websocket)
         this.#rpc.wsr(this.config.websocket_rev)
         this.running = true
         if (this.config.heartbeat.enabled) {
             this.start_heartbeat()
         }
+    }
+    stop(): void {
+        this.running = false
+        if (typeof this.#rpc?.all.ws.length !== "undefined" && this.#rpc.all.ws.length > 0) { this.#rpc?.all.ws.close() }
+        if (typeof this.#rpc?.all.wsr.length !== "undefined" && this.#rpc.all.wsr.length > 0) { this.#rpc.all.wsr.close() }
+        this.#rpc = null
     }
     is_running(): boolean {
         return this.running
@@ -62,15 +68,22 @@ export class CustomOneBot<E, A, R> {
         }
     }
     send_event(event: E): void {
-        this.#rpc.send(event)
+        if (this.running) {
+            //this.#rpc?.all.http.send(event)
+            //this.#rpc?.all.webhook.send(event)
+            if (typeof this.#rpc?.all.ws.length !== "undefined" && this.#rpc.all.ws.length > 0) { this.#rpc?.all.ws.send(event) }
+            if (typeof this.#rpc?.all.wsr.length !== "undefined" && this.#rpc.all.wsr.length > 0) { this.#rpc.all.wsr.send(event) }
+        }
     }
     start_heartbeat(): void {
-        if (this.running) {
-            setInterval(() => {
+        let interval = setInterval(() => {
+            if (this.running) {
                 let data = this.build_heartbeat(this.config.heartbeat.interval)
                 this.send_event(data as any)
-            }, this.config.heartbeat.interval * 1000)
-        }
+            } else {
+                clearInterval(interval)
+            }
+        }, this.config.heartbeat.interval * 1000)
     }
     build_heartbeat(interval: number): MetaEvent {
         return {

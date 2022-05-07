@@ -12,8 +12,14 @@ export class Logger<T> {
     red(text: string): string {
         return rgb24(text, { r: 199, g: 63, b: 74 })
     }
+    yellow(text: string): string {
+        return rgb24(text, { r: 250, g: 202, b: 48 })
+    }
+    blue(text: string): string {
+        return rgb24(text, { r: 0, g: 162, b: 213 })
+    }
     warn(args: T): void {
-        return console.log(`${this.secondary(this.time())} ${rgb24("[WARN]", { r: 250, g: 202, b: 48 })} ${this.secondary(this.name + ":")}`, args)
+        return console.log(`${this.secondary(this.time())} ${this.yellow("[WARN]")} ${this.secondary(this.name + ":")}`, args)
     }
     info(args: T): void {
         return console.log(`${this.secondary(this.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${this.secondary(this.name + ":")}`, args)

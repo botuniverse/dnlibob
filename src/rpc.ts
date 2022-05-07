@@ -31,10 +31,13 @@ class HttpRegistry<E, A, R> extends Array {
                 ctx.response.status = oak.Status.OK
             }
         });
+        const controller = new AbortController();
+        const { signal } = controller;
+        super.push(controller)
+        logger.info(`http 监听在 ${logger.red(config.host + ":" + config.port)}`)
         await app.listen({
-            hostname: config.host, port: config.port
+            hostname: config.host, port: config.port, signal
         });
-        return super.push(app)
     }
     send(_data: any) {
         /*if (data.detail_type !== "heartbeat") {
@@ -42,6 +45,11 @@ class HttpRegistry<E, A, R> extends Array {
                 storage.set(data)
             }
         }*/
+    }
+    close() {
+        super.forEach(function (entry) {
+            entry.abort()
+        })
     }
 }
 
@@ -58,6 +66,9 @@ class WebhookRegistry extends Array {
                 entry.send(JSON.stringify(data))
             })
         }
+    }
+    close() {
+
     }
 }
 
@@ -101,18 +112,28 @@ class WsRegistry<E, A, R> extends Array {
                 })
             }
         });
-        app.addEventListener("listen", () => {
-            super.push(app)
-            logger.info(`websocket 监听在 ${logger.red(config.host + ":" + config.port)}`)
-        })
+        const controller = new AbortController();
+        const { signal } = controller;
+        super.push(controller)
+        logger.info(`websocket 监听在 ${logger.red(config.host + ":" + config.port)}`)
         await app.listen({
-            hostname: config.host, port: config.port
+            hostname: config.host, port: config.port, signal
         });
     }
     send(data: any) {
         for (const entry of this.sockets) {
             if (entry.readyState === WebSocket.OPEN) {
                 entry.send(JSON.stringify(data))
+            }
+        }
+    }
+    close() {
+        super.forEach(function (entry) {
+            entry.abort()
+        })
+        for (const entry of this.sockets) {
+            if (entry.readyState === WebSocket.OPEN) {
+                entry.close()
             }
         }
     }
@@ -157,6 +178,7 @@ class WsrRegistry<E, A, R> extends Array {
                 this.sockets.splice(index, 1)
             }
         })
+        super.push(app)
     }
     send(data: any) {
         for (const entry of this.sockets) {
@@ -165,10 +187,15 @@ class WsrRegistry<E, A, R> extends Array {
             }
         }
     }
+    close() {
+        super.forEach(function (entry) {
+            entry.close()
+        })
+    }
 }
 
 export class Rpc<E, A, R> {
-    private all: Record<string, HttpRegistry<E, A, R> | WsRegistry<E, A, R> | WsrRegistry<E, A, R> | WebhookRegistry> = {}
+    public all: Record<string, HttpRegistry<E, A, R> | WsRegistry<E, A, R> | WsrRegistry<E, A, R> | WebhookRegistry> = {}
     constructor(private action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>, private ob: CustomOneBot<E, A, R>) {
     }
     http(config: HttpServer[]) {
@@ -199,11 +226,10 @@ export class Rpc<E, A, R> {
         }
         this.all.wsr = wsr
     }
-    send<H extends StandardEvent>(data: E | H) {
-        this.all.http.send(data)
-        this.all.webhook.send(data)
-        this.all.ws.send(data)
-        this.all.wsr.send(data)
+    closeAll() {
+        this.all.http.close()
+        this.all.ws.close()
+        this.all.wsr.close()
     }
 }
 
@@ -220,6 +246,7 @@ class Wsr {
     private reconnect_interval: number = 0
     private add_callback: (arg0: WebSocket) => void
     private del_callback: (arg0: WebSocket | null) => void
+    private running: boolean = false
     constructor() {
         this.add_callback = () => { }
         this.del_callback = () => { }
@@ -229,13 +256,16 @@ class Wsr {
         this.del_callback(this.socket)
         logger.info(`${this.reconnect_interval} 秒钟后重试`)
         setTimeout(() => {
-            this.socket = new WebSocket(this.url)
-            this.socket.addEventListener("close", this.reconnect.bind(this))
-            this.add_callback(this.socket)
+            if (this.running) {
+                this.socket = new WebSocket(this.url)
+                this.socket.addEventListener("close", this.reconnect.bind(this))
+                this.add_callback(this.socket)
+            }
         }, this.reconnect_interval * 1000)
     }
     connect(config: WsrConfig) {
         logger.info(`正在启动 websocket 反向服务器。`)
+        this.running = true
         this.url = config.url
         this.reconnect_interval = config.reconnect_interval
         this.add_callback = config.add_callback
@@ -244,6 +274,14 @@ class Wsr {
         this.socket = new WebSocket(config.url)
         this.socket.addEventListener("close", this.reconnect.bind(this))
         this.add_callback(this.socket)
+    }
+    close() {
+        if (this.socket === null) {
+            this.running = false
+        } else if (this.socket.readyState === WebSocket.OPEN) {
+            this.running = false
+            this.socket.close()
+        }
     }
 }
 
