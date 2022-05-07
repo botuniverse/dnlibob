@@ -2,7 +2,7 @@ import { ImplConfig } from "../config.ts"
 import { Rpc } from "../rpc.ts"
 import { Logger } from "../utils/logger.ts"
 import { ActionHandler } from "../handle/index.ts"
-import { MetaEvent, StandardEvent, BaseEvent } from "../event/index.ts"
+import { MetaEvent, StandardEvent, BaseEvent, EventContent } from "../event/index.ts"
 import { StandardAction } from "../action.ts"
 import { Resps, StatusContent } from "../resp.ts"
 
@@ -32,6 +32,7 @@ export class CustomOneBot<E, A, R> {
     private running: boolean = false
     private online: boolean = false
     public action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>
+    public onebot_version: string = "12"
     constructor(config: CustomOneBot.Config<E, A, R>) {
         this.impl = config.impl
         this.platform = config.platform
@@ -60,14 +61,14 @@ export class CustomOneBot<E, A, R> {
             online: this.online
         }
     }
-    send_event<H extends StandardEvent>(event: E | H): void {
+    send_event(event: E): void {
         this.#rpc.send(event)
     }
     start_heartbeat(): void {
         if (this.running) {
             setInterval(() => {
                 let data = this.build_heartbeat(this.config.heartbeat.interval)
-                this.send_event(data)
+                this.send_event(data as any)
             }, this.config.heartbeat.interval * 1000)
         }
     }
@@ -81,10 +82,11 @@ export class CustomOneBot<E, A, R> {
             interval,
             status: this.get_status(),
             sub_type: "",
-            detail_type: ""
+            detail_type: "heartbeat",
+            type: "meta"
         }
     }
-    new_event(content: E, time: number): BaseEvent<E> {
+    new_event<H extends EventContent>(content: H, time: number): BaseEvent<H> {
         return {
             id: crypto.randomUUID(),
             impl: this.impl,

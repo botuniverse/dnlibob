@@ -1,4 +1,4 @@
-import { StandardAction, StandardActionEnum } from "../action.ts"
+import { StandardAction } from "../action.ts"
 import { Resps, Resp, VersionContent } from "../resp.ts"
 import { CustomOneBot } from "../impls/index.ts"
 
@@ -9,7 +9,7 @@ export abstract class ActionHandler<A, R, OB>{
 export class DefaultHandler<E> extends ActionHandler<StandardAction, Resps, CustomOneBot<E, StandardAction, Resps>>{
     handle(data: StandardAction, _ob: CustomOneBot<E, StandardAction, Resps>): Resps {
         switch (data.action) {
-            case StandardActionEnum.GetVersion:
+            case "get_version":
                 return Resp.success(get_version())
             default:
                 return Resp.unsupported_action()

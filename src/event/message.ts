@@ -11,21 +11,12 @@ export type MessageContent = {
 
 type MessageEventType = Private | Group
 
-export namespace MessageEventType {
-    export function Group(group_id: string): MessageEventType {
-        return {
-            group_id: group_id
-        }
-    }
-    export function Private(): MessageEventType {
-        return {}
-    }
-}
-
 interface Private {
+    detail_type: "private"
 }
 
 interface Group {
+    detail_type: "group",
     group_id: string
 }
 
@@ -37,12 +28,13 @@ export namespace MessageContent {
         group_id: string,
     ): MessageContent {
         return {
-            ty: MessageEventType.Group(group_id),
+            group_id,
             message_id,
             alt_message: Message.alt(message),
             message,
             user_id,
             sub_type: "",
+            detail_type: "group",
         }
     }
     export function new_private_message_content(
@@ -51,12 +43,12 @@ export namespace MessageContent {
         user_id: string,
     ): MessageContent {
         return {
-            ty: MessageEventType.Private(),
             message_id,
             alt_message: Message.alt(message),
             message,
             user_id,
             sub_type: "",
+            detail_type: "private",
         }
     }
 }

@@ -1,33 +1,12 @@
 import { Message } from "./message/index.ts";
 
-export type StandardAction = BaseAction<SendMessage, StandardActionEnum.SendMessage> | BaseAction<GetLatestEvents, StandardActionEnum.GetLatestEvents> | BaseAction<DeleteMessage, StandardActionEnum.DeleteMessage> | BaseAction<GetMessage, StandardActionEnum.GetMessage> | BaseAction<GetUserInfo, StandardActionEnum.GetUserInfo> | BaseAction<GetGroupInfo, StandardActionEnum.GetGroupInfo> | BaseAction<GetGroupMemberList, StandardActionEnum.GetGroupMemberList> | BaseAction<LeaveGroup, StandardActionEnum.LeaveGroup> | BaseAction<GetGroupMemberInfo, StandardActionEnum.GetGroupMemberInfo> | BaseAction<KickGroupMember, StandardActionEnum.KickGroupMember> | BaseAction<BanGroupMember, StandardActionEnum.BanGroupMember> | BaseAction<UnbanGroupMember, StandardActionEnum.UnbanGroupMember> | BaseAction<SetGroupAdmin, StandardActionEnum.SetGroupAdmin> | BaseAction<UnsetGroupAdmin, StandardActionEnum.UnsetGroupAdmin> | BaseAction<SetGroupName, StandardActionEnum.SetGroupName> | BaseAction<UploadFile, StandardActionEnum.UploadFile> | BaseAction<GetFile, StandardActionEnum.GetFile> | BaseAction<Extended, StandardActionEnum.GetStatus> | BaseAction<Extended, StandardActionEnum.GetVersion> | BaseAction<Extended, StandardActionEnum.GetSelfInfo> | BaseAction<Extended, StandardActionEnum.GetFriendList> | BaseAction<Extended, StandardActionEnum.GetGroupList> | BaseAction<UploadFileFragmented.Finish | UploadFileFragmented.Prepare | UploadFileFragmented.Transfer, StandardActionEnum.UploadFileFragmented> | BaseAction<GetFileFragmented.Prepare | GetFileFragmented.Transfer, StandardActionEnum.GetFileFragmented> | BaseAction<Extended, StandardActionEnum.GetSupportedActions>;
+/// OneBot 12 标准动作
+export type StandardAction = BaseAction<SendMessage, "send_message"> | BaseAction<GetLatestEvents, "get_latest_events"> | BaseAction<DeleteMessage, "delete_message"> | BaseAction<GetMessage, "get_message"> | BaseAction<GetUserInfo, "get_user_info"> | BaseAction<GetGroupInfo, "get_group_info"> | BaseAction<GetGroupMemberList, "get_group_member_list"> | BaseAction<LeaveGroup, "leave_group"> | BaseAction<GetGroupMemberInfo, "get_group_member_info"> | BaseAction<KickGroupMember, "kick_group_member"> | BaseAction<BanGroupMember, "ban_group_member"> | BaseAction<UnbanGroupMember, "unban_group_member"> | BaseAction<SetGroupAdmin, "set_group_admin"> | BaseAction<UnsetGroupAdmin, "unset_group_admin"> | BaseAction<SetGroupName, "set_group_name"> | BaseAction<UploadFile, "upload_file"> | BaseAction<GetFile, "get_file"> | BaseAction<Extended, "get_status"> | BaseAction<Extended, "get_version"> | BaseAction<Extended, "get_self_info"> | BaseAction<Extended, "get_friend_list"> | BaseAction<Extended, "get_group_list"> | BaseAction<UploadFileFragmented<"prepare", UploadFileFragmented.Prepare> | UploadFileFragmented<"transfer", UploadFileFragmented.Transfer> | UploadFileFragmented<"finish", UploadFileFragmented.Finish>, "upload_file_fragmented"> | BaseAction<GetFileFragmented<"prepare", GetFileFragmented.Prepare> | GetFileFragmented<"transfer", GetFileFragmented.Transfer>, "get_file_fragmented"> | BaseAction<Extended, "get_supported_actions">;
 
-export enum StandardActionEnum {
-    SendMessage = "send_message",
-    GetLatestEvents = "get_latest_events",
-    DeleteMessage = "delete_message",
-    GetMessage = "get_message",
-    GetUserInfo = "get_user_info",
-    GetGroupInfo = "get_group_info",
-    GetGroupMemberList = "get_group_member_list",
-    LeaveGroup = "leave_group",
-    GetGroupMemberInfo = "get_group_member_info",
-    KickGroupMember = "kick_group_member",
-    BanGroupMember = "ban_group_member",
-    UnbanGroupMember = "unban_group_member",
-    SetGroupAdmin = "set_group_admin",
-    UnsetGroupAdmin = "unset_group_admin",
-    SetGroupName = "set_group_name",
-    UploadFile = "upload_file",
-    GetFile = "get_file",
-    GetStatus = "get_status",
-    GetVersion = "get_version",
-    GetSelfInfo = "get_self_info",
-    GetFriendList = "get_friend_list",
-    GetGroupList = "get_group_list",
-    UploadFileFragmented = "upload_file_fragmented",
-    GetFileFragmented = "get_file_fragmented",
-    GetSupportedActions = "get_supported_actions"
+/// OneBot 12 扩展动作
+export interface ExtendedAction {
+    action: string,
+    params: Extended,
 }
 
 export type BaseAction<T, E> = {
@@ -40,9 +19,9 @@ export interface Extended {
 }
 
 export interface SendMessage extends Extended {
-    detail_type: string,
-    group_id?: string | null,
-    user_id?: string | null,
+    detail_type: "private" | "group" | string,
+    group_id?: string,
+    user_id?: string,
     message: Message,
 }
 
@@ -111,13 +90,13 @@ export interface SetGroupName extends Extended {
 }
 
 export interface UploadFile extends Extended {
-    type: string,
+    type: "url" | "path" | "data" | string,
     name: string,
-    url?: String | null,
-    headers?: Record<string, string> | null,
-    path?: string | null,
-    data?: number[] | null,
-    sha256?: string | null,
+    url?: String,
+    headers?: Record<string, string>,
+    path?: string,
+    data?: number[],
+    sha256?: string,
 }
 
 export interface GetFile extends Extended {
@@ -125,28 +104,36 @@ export interface GetFile extends Extended {
     type: string,
 }
 
+export type UploadFileFragmented<T, E> = {
+    stage: T
+} & E
+
 export namespace UploadFileFragmented {
-    export interface Prepare {
+    export interface Prepare extends Extended {
         name: string,
         total: number,
         sha256: string,
     }
-    export interface Transfer {
+    export interface Transfer extends Extended {
         file_id: string,
         offset: number,
         size: number,
         data: number[],
     }
-    export interface Finish {
+    export interface Finish extends Extended {
         file_id: string,
     }
 }
 
+export type GetFileFragmented<T, E> = {
+    stage: T
+} & E
+
 export namespace GetFileFragmented {
-    export interface Prepare {
+    export interface Prepare extends Extended {
         file_id: string,
     }
-    export interface Transfer {
+    export interface Transfer extends Extended {
         file_id: string,
         offset: number,
         size: number,

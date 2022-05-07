@@ -1,13 +1,11 @@
 import { MetaContent } from "./meta.ts";
 import { MessageContent } from "./message.ts";
 import { NoticeContent } from "./notice.ts";
-import { RequestContent } from "./request.ts";
 
 export type StandardEvent = BaseEvent<EventContent>;
-export type MessageEvent = BaseEvent<MessageContent>;
-export type NoticeEvent = BaseEvent<NoticeContent>;
-export type RequestEvent = BaseEvent<RequestContent>;
-export type MetaEvent = BaseEvent<MetaContent>;
+export type MessageEvent = BaseEvent<MessageContent> & { type: "message" };
+export type NoticeEvent = BaseEvent<NoticeContent> & { type: "notice" };
+export type MetaEvent = BaseEvent<MetaContent> & { type: "meta" };
 
 export type BaseEvent<T> = {
     id: string,
@@ -17,4 +15,4 @@ export type BaseEvent<T> = {
     time: number,
 } & T
 
-export type EventContent = MetaContent | MessageContent | NoticeContent | RequestContent
+export type EventContent = (MetaContent & { type: "meta" }) | (MessageContent & { type: "message" }) | (NoticeContent & { type: "notice" })
