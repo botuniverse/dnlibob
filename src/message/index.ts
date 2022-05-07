@@ -1,4 +1,4 @@
-export type Message = [MessageSegment];
+export type Message = MessageSegment[];
 
 export namespace Message {
     export function alt(content: Message): string {
