@@ -10,119 +10,87 @@ export namespace Message {
     }
 }
 
-export type MessageSegment = MessageSegment.Text | MessageSegment.Mention | MessageSegment.MentionAll | MessageSegment.Image | MessageSegment.Voice | MessageSegment.Audio | MessageSegment.Video | MessageSegment.File | MessageSegment.Location | MessageSegment.Reply | MessageSegment.Custom
+export type MessageSegment = BaseMessageSegment<"text", MessageSegment.Text> | BaseMessageSegment<"mention", MessageSegment.Mention> | BaseMessageSegment<"mention_all", MessageSegment.MentionAll> | BaseMessageSegment<"image", MessageSegment.Image> | BaseMessageSegment<"voice", MessageSegment.Voice> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"file", MessageSegment.File> | BaseMessageSegment<"location", MessageSegment.Location> | BaseMessageSegment<"reply", MessageSegment.Reply> | BaseMessageSegment<string, MessageSegment.Custom>
 
-export enum MessageSegmentEnum {
-    Text,
-    Mention,
-    MentionAll,
-    Image,
-    Voice,
-    Audio,
-    Video,
-    File,
-    Location,
-    Reply,
-    Custom
+export interface BaseMessageSegment<T, E> {
+    type: T,
+    data: E
 }
 
 export namespace MessageSegment {
-    export interface Text {
+    export interface Text extends Custom {
         text: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Text
     }
-    export interface Mention {
+    export interface Mention extends Custom {
         user_id: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Mention
     }
-    export interface MentionAll {
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.MentionAll
+    export interface MentionAll extends Custom {
     }
-    export interface Image {
+    export interface Image extends Custom {
         file_id: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Image
     }
-    export interface Voice {
+    export interface Voice extends Custom {
         file_id: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Voice
     }
-    export interface Audio {
+    export interface Audio extends Custom {
         file_id: String,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Audio
     }
-    export interface Video {
+    export interface Video extends Custom {
         file_id: String,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Video
     }
-    export interface File {
+    export interface File extends Custom {
         file_id: String,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.File
     }
-    export interface Location {
+    export interface Location extends Custom {
         latitude: number,
         longitude: number,
         title: string,
         content: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Location
     }
-    export interface Reply {
+    export interface Reply extends Custom {
         message_id: string,
         user_id: string,
-        extend: Record<string, any>,
-        _t: MessageSegmentEnum.Reply
     }
     export interface Custom {
-        ty: string,
-        data: Record<string, any>,
-        _t: MessageSegmentEnum.Custom
+        [prop: string]: any
     }
     export function alt(content: MessageSegment): string {
-        switch (content._t) {
-            case MessageSegmentEnum.Text:
+        switch (content.type) {
+            case "text":
                 {
-                    let { text } = content
+                    let { text } = content.data
                     return text
                 }
-            case MessageSegmentEnum.Mention:
+            case "mention":
                 {
-                    let { user_id } = content
+                    let { user_id } = content.data
                     return `[Mention=${user_id}]`
                 }
-            case MessageSegmentEnum.MentionAll:
+            case "mention_all":
                 return "[MentionAll]"
-            case MessageSegmentEnum.Image:
+            case "image":
                 {
-                    let { file_id } = content
+                    let { file_id } = content.data
                     return `[Image,file_id=${file_id}]`
                 }
-            case MessageSegmentEnum.Voice:
+            case "voice":
                 return "[Voice]"
-            case MessageSegmentEnum.Audio:
+            case "audio":
                 return "[Audio]"
-            case MessageSegmentEnum.Video:
+            case "video":
                 return "[Video]"
-            case MessageSegmentEnum.File:
+            case "file":
                 return "[File]"
-            case MessageSegmentEnum.Location:
+            case "location":
                 return "[Location]"
-            case MessageSegmentEnum.Reply:
+            case "reply":
                 {
-                    let { user_id } = content
+                    let { user_id } = content.data
                     return `[Reply=${user_id}]`
                 }
-            case MessageSegmentEnum.Custom:
+            default:
                 {
-                    let { ty } = content
-                    return `[${ty}]`
+                    return `[${content.type}]`
                 }
         }
     }
