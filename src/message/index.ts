@@ -88,6 +88,11 @@ export namespace MessageSegment {
                     let { user_id } = content.data
                     return `[Reply=${user_id}]`
                 }
+            case "telegram.text_link":
+                {
+                    let { text } = content.data
+                    return text
+                }
             default:
                 {
                     return `[${content.type}]`
