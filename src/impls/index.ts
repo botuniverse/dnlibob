@@ -67,6 +67,9 @@ export class CustomOneBot<E, A, R> {
             online: this.online
         }
     }
+    set_online(online: boolean) {
+        this.online = online
+    }
     send_event(event: E): void {
         if (this.running) {
             //this.#rpc?.all.http.send(event)
