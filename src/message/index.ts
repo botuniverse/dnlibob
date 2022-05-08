@@ -2,9 +2,9 @@ export type Message = MessageSegment[];
 
 export namespace Message {
     export function alt(content: Message): string {
-        let alt = ""
+        let alt:string = ""
         for (const seg of content) {
-            alt + MessageSegment.alt(seg)
+            alt = alt + MessageSegment.alt(seg)
         }
         return alt
     }
@@ -55,49 +55,31 @@ export namespace MessageSegment {
         [prop: string]: any
     }
     export function alt(content: MessageSegment): string {
-        switch (content.type) {
-            case "text":
-                {
-                    let { text } = content.data
-                    return text
-                }
-            case "mention":
-                {
-                    let { user_id } = content.data
-                    return `[Mention=${user_id}]`
-                }
-            case "mention_all":
-                return "[MentionAll]"
-            case "image":
-                {
-                    let { file_id } = content.data
-                    return `[Image,file_id=${file_id}]`
-                }
-            case "voice":
-                return "[Voice]"
-            case "audio":
-                return "[Audio]"
-            case "video":
-                return "[Video]"
-            case "file":
-                return "[File]"
-            case "location":
-                return "[Location]"
-            case "reply":
-                {
-                    let { user_id } = content.data
-                    return `[Reply=${user_id}]`
-                }
-            case "telegram.text_link":
-                {
-                    let { text } = content.data
-                    return text
-                }
-            default:
-                {
-                    return `[${content.type}]`
-                }
+        let data = content.data
+        if(content.type === "text") {
+            return content.data.text
+        }else if (content.type === "mention") {
+            return `[提及:${data.user_id}]`
+        }else if (content.type === "mention_all") {
+            return `[提及所有人]`
+        }else if (content.type === "image") {
+            return `[图片]`
+        }else if (content.type === "voice") {
+            return "[语音]"
+        }else if (content.type === "audio") {
+            return "[音频]"
+        }else if (content.type === "video") {
+            return "[视频]"
+        }else if (content.type === "file") {
+            return "[文件]"
+        }else if (content.type === "location") {
+            return `[位置]`
+        }else if (content.type === "reply") {
+            return `[回复:${data.message_id}]`
+        }else if (content.type === "telegram.text_link") {
+            return content.data.text
         }
+        return `[${content.type}]`
     }
 }
 
