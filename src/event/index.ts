@@ -21,4 +21,4 @@ export interface ExtendedContent {
     detail_type: string
 }
 
-export type EventContent = (MetaContent & { type: "meta" }) | (MessageContent & { type: "message" }) | (NoticeContent & { type: "notice" })
+export type EventContent = (MetaContent & { type: "meta" }) | (MessageContent & { type: "message" }) | (NoticeContent & { type: "notice" })| (ExtendedContent & { type: string })
