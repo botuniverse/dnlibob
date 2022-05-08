@@ -41,7 +41,7 @@ export class CustomOneBot<E, A, R> {
         this.action_handler = config.action_handler
     }
     run(): void {
-        logger.info(`${logger.red(this.impl)}:${logger.yellow(this.platform)}:${logger.blue(this.self_id)} 正在启动`)
+        logger.info(`[${logger.red(this.impl)}:${logger.yellow(this.platform)}:${logger.blue(this.self_id)}] 正在启动`)
         this.#rpc = new Rpc<E, A, R>(this.action_handler, this)
         //this.#rpc.http(this.config.http)
         //this.#rpc.webhook(this.config.http_webhook)
