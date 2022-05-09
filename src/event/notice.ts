@@ -1,4 +1,4 @@
-export type NoticeContent = NoticeContent.GroupMemberIncrease | NoticeContent.GroupMemberDecrease | NoticeContent.GroupMemberBan | NoticeContent.GroupMemberUnban | NoticeContent.GroupAdminSet | NoticeContent.GroupAdminUnset | NoticeContent.GroupMessageDelete | NoticeContent.PrivateMessageDelete | NoticeContent.FriendDecrease | NoticeContent.FriendIncrease
+export type NoticeContent = (NoticeContent.GroupMemberIncrease | NoticeContent.GroupMemberDecrease | NoticeContent.GroupMemberBan | NoticeContent.GroupMemberUnban | NoticeContent.GroupAdminSet | NoticeContent.GroupAdminUnset | NoticeContent.GroupMessageDelete | NoticeContent.PrivateMessageDelete | NoticeContent.FriendDecrease | NoticeContent.FriendIncrease) & { [prop: string]: any }
 
 export namespace NoticeContent {
     /// 群成员增加
@@ -7,7 +7,7 @@ export namespace NoticeContent {
         group_id: string,
         user_id: string,
         operator_id: string,
-        detail_type: "group_member_increase"
+        detail_type: "group_member_increase",
     }
     /// 群成员减少
     export interface GroupMemberDecrease {
@@ -15,7 +15,7 @@ export namespace NoticeContent {
         group_id: string,
         user_id: string,
         operator_id: string,
-        detail_type: "group_member_decrease"
+        detail_type: "group_member_decrease",
     }
     /// 群成员禁言
     export interface GroupMemberBan {
