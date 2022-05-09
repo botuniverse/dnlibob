@@ -19,10 +19,10 @@ export interface Extended {
 }
 
 export interface SendMessage extends Extended {
-    detail_type: "private" | "group" | string,
+    detail_type: "private" | "group",
     group_id?: string,
     user_id?: string,
-    message: Message,
+    message: Message | string,
 }
 
 export interface GetLatestEvents extends Extended {
