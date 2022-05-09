@@ -33,4 +33,7 @@ export namespace Logger {
     export function canaryGreen(text: string): string {
         return rgb24(text, 0x70D6AF)
     }
+    export function canaryBlue(text: string): string {
+        return rgb24(text, 0x7DC6E2)
+    }
 }
