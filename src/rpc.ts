@@ -4,8 +4,7 @@ import { Logger } from "./utils/logger.ts";
 import { ActionHandler } from "./handle/index.ts"
 import { CustomOneBot } from "./impls/index.ts"
 import { HttpClient, HttpServer, WebSocketClient, WebSocketServer } from "./config.ts"
-import { StandardEvent } from "./event/index.ts"
-//import { msgpack } from "../deps.ts"
+import { parseJson } from "./utils/parse.ts"
 
 const logger = new Logger("Teyda_libonebot")
 
@@ -18,7 +17,7 @@ class HttpRegistry<E, A, R> extends Array {
         const app = new oak.Application();
         //let storage = new Storage(config.event_buffer_size)
         //this.storages.push(storage)
-        app.use((ctx) => {
+        app.use(async (ctx) => {
             if (config.access_token !== null && ctx.request.headers.get("Authorization") !== config.access_token) {
                 ctx.response.status = oak.Status.Unauthorized;
             } else if (ctx.request.method !== "POST") {
@@ -26,7 +25,7 @@ class HttpRegistry<E, A, R> extends Array {
             } else if (ctx.request.headers.get("content-type") !== "application/json") {
                 ctx.response.status = oak.Status.UnsupportedMediaType;
             } else {
-                ctx.response.body = this.action_handler.handle(ctx.request.body({ type: "json" }) as unknown as A, this.ob) as any;
+                ctx.response.body = JSON.stringify(await this.action_handler.handle(ctx.request.body({ type: "json" }) as unknown as A, this.ob));
                 ctx.response.type = "json"
                 ctx.response.status = oak.Status.OK
             }
@@ -34,7 +33,7 @@ class HttpRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`http 监听在 ${Logger.red(config.host + ":" + config.port)}`)
+        logger.info(`HTTP 监听在 ${Logger.red(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -86,28 +85,24 @@ class WsRegistry<E, A, R> extends Array {
                 ctx.upgrade()
                 this.sockets.push(ctx.socket!)
                 ctx.socket!.addEventListener("open", () => {
-                    logger.info(`新的 websocket 连接来自 ${ctx.request.ip}`)
+                    logger.info(`新的 WebSocket 连接来自 ${ctx.request.ip}`)
                 })
-                ctx.socket!.addEventListener("message", (e) => {
-                    let parsed: any
-                    try {
-                        parsed = JSON.parse(e.data)
-                        if (typeof parsed?.action === "undefined" || typeof parsed.params === "undefined") {
-                            logger.warn(`请求格式不正确: "${e.data}"`)
-                            parsed = null
-                        }
-                    } catch (err) {
-                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
-                        parsed = null
-                    }
+                ctx.socket!.addEventListener("message", async (e) => {
+                    let parsed: any = parseJson(e.data)
                     if (parsed !== null) {
+                        if (typeof parsed.action === "undefined" || typeof parsed.params === "undefined") {
+                            logger.warn(`请求格式不正确: "${e.data}"`)
+                            return false
+                        }
                         let echo: Record<string, any> = {}
                         if (typeof parsed.echo !== "undefined") {
                             echo = { echo: parsed.echo }
                             delete parsed.echo
                         }
-                        let data = this.action_handler.handle(parsed, this.ob)
+                        let data: R = await this.action_handler.handle(parsed, this.ob)
                         ctx.socket!.send(JSON.stringify(Object.assign(data, echo)))
+                    } else {
+                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
                     }
                 })
             }
@@ -115,7 +110,7 @@ class WsRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`websocket 监听在 ${Logger.red(config.host + ":" + config.port)}`)
+        logger.info(`WebSocket 监听在 ${Logger.red(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -150,28 +145,23 @@ class WsrRegistry<E, A, R> extends Array {
             url: config.url, reconnect_interval: config.reconnect_interval, add_callback: (socket) => {
                 this.sockets.push(socket)
                 socket.addEventListener("open", () => logger.info(`成功连接到 ${config.url}`))
-                socket.addEventListener("message", (e) => {
-                    let parsed: any
-                    try {
-                        parsed = JSON.parse(e.data)
-                        if (typeof parsed?.action === "undefined" || typeof parsed.params === "undefined") {
-                            logger.warn(`请求格式不正确: "${e.data}"`)
-                            parsed = null
-                        }
-                    } catch (err) {
-                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
-                        parsed = null
-                    }
+                socket.addEventListener("message", async (e) => {
+                    let parsed: any = parseJson(e.data)
                     if (parsed !== null) {
+                        if (typeof parsed.action === "undefined" || typeof parsed.params === "undefined") {
+                            logger.warn(`请求格式不正确: "${e.data}"`)
+                            return false
+                        }
                         let echo: Record<string, any> = {}
                         if (typeof parsed.echo !== "undefined") {
                             echo = { echo: parsed.echo }
                             delete parsed.echo
                         }
-                        let data = this.action_handler.handle(parsed, this.ob)
+                        let data: R = await this.action_handler.handle(parsed, this.ob)
                         socket.send(JSON.stringify(Object.assign(data, echo)))
+                    } else {
+                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
                     }
-                    //typeof e.data === "string" ? (parsed = JSON.parse(e.data)) : (parsed = msgpack.decode(e.data));
                 })
             }, del_callback: (socket) => {
                 const index = this.sockets.findIndex((element) => element === socket)
@@ -264,7 +254,7 @@ class Wsr {
         }, this.reconnect_interval * 1000)
     }
     connect(config: WsrConfig) {
-        logger.info(`正在启动 websocket 反向服务器。`)
+        logger.info(`正在启动 WebSocket 反向服务器。`)
         this.running = true
         this.url = config.url
         this.reconnect_interval = config.reconnect_interval

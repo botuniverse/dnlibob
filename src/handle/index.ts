@@ -3,11 +3,11 @@ import { Resps, Resp, VersionContent } from "../resp.ts"
 import { CustomOneBot } from "../impls/index.ts"
 
 export abstract class ActionHandler<A, R, OB>{
-    abstract handle(data: A, ob: OB): R
+    abstract handle(data: A, ob: OB): Promise<R>
 }
 
 export class DefaultHandler<E> extends ActionHandler<StandardAction, Resps, CustomOneBot<E, StandardAction, Resps>>{
-    handle(data: StandardAction, _ob: CustomOneBot<E, StandardAction, Resps>): Resps {
+    async handle(data: StandardAction, _ob: CustomOneBot<E, StandardAction, Resps>): Promise<Resps> {
         switch (data.action) {
             case "get_version":
                 return Resp.success(get_version())
