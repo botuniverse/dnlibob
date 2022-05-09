@@ -9,13 +9,13 @@ Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平�
 
 ## 功能
 
-- 提供 OneBot v12 标准 Event、Action、ActionResp 类型，是可扩展的，以及相应的工具函数
+- 提供 OneBot v12 标准 Event、Action、ActionResp 类型，以及相应的工具函数
 - 提供 OneBot v12 实现端标准网络通讯协议
 
 ## 最小实例
 
 ```ts
-import { OneBot, ImplConfig, DefaultHandler } from "https://deno.land/x/teyda_libonebot@0.1.7/src/mod.ts"
+import { OneBot, ImplConfig, DefaultHandler } from "https://deno.land/x/teyda_libonebot@0.1.8/src/mod.ts"
 
 const ob = new OneBot({
     impl: "idr",

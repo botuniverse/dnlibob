@@ -1,4 +1,4 @@
-import { OneBot, ImplConfig, DefaultHandler } from "./src/mod.ts"
+import { OneBot, ImplConfig, DefaultHandler, Logger } from "./src/mod.ts"
 
 const ob = new OneBot({
     impl: "idr",

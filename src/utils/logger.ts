@@ -3,11 +3,11 @@ import { format, rgb24 } from "../../deps.ts"
 export class Logger {
     constructor(private name: string, private extra: string = '') {
     }
-    warn(...args: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${Logger.yellow("[WARN]")} ${Logger.secondary(this.name + ":")}`, this.extra, args)
+    warn(text: any): void {
+        return console.log(`${Logger.secondary(Logger.time())} ${Logger.yellow("[WARN]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
     }
-    info(...args: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${Logger.secondary(this.name + ":")}`, this.extra, args)
+    info(text: any): void {
+        return console.log(`${Logger.secondary(Logger.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${Logger.secondary(this.name + ":")}`, this.extra, text)
     }
 }
 
@@ -26,5 +26,11 @@ export namespace Logger {
     }
     export function blue(text: string): string {
         return rgb24(text, { r: 0, g: 162, b: 213 })
+    }
+    export function canaryYellow(text: string): string {
+        return rgb24(text, 0xF7F797)
+    }
+    export function canaryGreen(text: string): string {
+        return rgb24(text, 0x70D6AF)
     }
 }
