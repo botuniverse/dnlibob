@@ -1,7 +1,7 @@
 import { format, rgb24 } from "../../deps.ts"
 
 export class Logger {
-    constructor(private name: string) {
+    constructor(private name: string, private extra: string = '') {
     }
     time(): string {
         return format(new Date(), "yy-MM-dd HH:mm:ss")
@@ -18,10 +18,10 @@ export class Logger {
     blue(text: string): string {
         return rgb24(text, { r: 0, g: 162, b: 213 })
     }
-    warn(args: any): void {
-        return console.log(`${this.secondary(this.time())} ${this.yellow("[WARN]")} ${this.secondary(this.name + ":")}`, args)
+    warn(...args: any): void {
+        return console.log(`${this.secondary(this.time())} ${this.yellow("[WARN]")} ${this.secondary(this.name + ":")}`, this.extra, args)
     }
-    info(args: any): void {
-        return console.log(`${this.secondary(this.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${this.secondary(this.name + ":")}`, args)
+    info(...args: any): void {
+        return console.log(`${this.secondary(this.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${this.secondary(this.name + ":")}`, this.extra, args)
     }
 }
