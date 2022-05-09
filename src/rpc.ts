@@ -34,7 +34,7 @@ class HttpRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`http 监听在 ${logger.red(config.host + ":" + config.port)}`)
+        logger.info(`http 监听在 ${Logger.red(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -115,7 +115,7 @@ class WsRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`websocket 监听在 ${logger.red(config.host + ":" + config.port)}`)
+        logger.info(`websocket 监听在 ${Logger.red(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -252,7 +252,7 @@ class Wsr {
         this.del_callback = () => { }
     }
     reconnect() {
-        logger.warn(`无法连接到 ${logger.red(this.url)}`)
+        logger.warn(`无法连接到 ${Logger.red(this.url)}`)
         this.del_callback(this.socket)
         logger.info(`${this.reconnect_interval} 秒钟后重试`)
         setTimeout(() => {
@@ -270,7 +270,7 @@ class Wsr {
         this.reconnect_interval = config.reconnect_interval
         this.add_callback = config.add_callback
         this.del_callback = config.del_callback
-        logger.info(`开始尝试连接到 ${logger.red(this.url)}`)
+        logger.info(`开始尝试连接到 ${Logger.red(this.url)}`)
         this.socket = new WebSocket(config.url)
         this.socket.addEventListener("close", this.reconnect.bind(this))
         this.add_callback(this.socket)
