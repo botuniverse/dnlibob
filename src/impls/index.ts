@@ -33,6 +33,7 @@ export class CustomOneBot<E, A, R> {
     private online: boolean = false
     public action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>
     public onebot_version: string = "12"
+    private heartbeating: boolean = false
     constructor(config: CustomOneBot.Config<E, A, R>) {
         this.impl = config.impl
         this.platform = config.platform
@@ -78,9 +79,13 @@ export class CustomOneBot<E, A, R> {
             if (typeof this.#rpc?.all.wsr.length !== "undefined" && this.#rpc.all.wsr.length > 0) { this.#rpc.all.wsr.send(event) }
         }
     }
+    stop_heartbeat(): void {
+        this.heartbeating = false
+    }
     start_heartbeat(): void {
+        this.heartbeating = true
         let interval = setInterval(() => {
-            if (this.running) {
+            if (this.running && this.heartbeating) {
                 let data = this.build_heartbeat(this.config.heartbeat.interval)
                 this.send_event(data as any)
             } else {

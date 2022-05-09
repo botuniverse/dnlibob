@@ -9,7 +9,7 @@ export type MessageContent = {
     [prop: string]: any,
 } & MessageEventType
 
-type MessageEventType = Private | Group | Extended
+type MessageEventType = Private | Group
 
 interface Private {
     detail_type: "private"
@@ -18,10 +18,6 @@ interface Private {
 interface Group {
     detail_type: "group",
     group_id: string
-}
-
-interface Extended {
-    detail_type: string
 }
 
 export namespace MessageContent {

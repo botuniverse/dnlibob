@@ -78,6 +78,8 @@ export namespace MessageSegment {
             return `[回复:${data.message_id}]`
         }else if (content.type === "telegram.text_link") {
             return content.data.text
+        }else if (content.type === "telegram.bot_command") {
+            return content.data.text
         }
         return `[${content.type}]`
     }
