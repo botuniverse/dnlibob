@@ -19,6 +19,7 @@ export type BaseEvent<T> = {
 export interface ExtendedContent {
     sub_type: string
     detail_type: string
+    [prop: string]: any
 }
 
-export type EventContent = (MetaContent & { type: "meta" }) | (MessageContent & { type: "message" }) | (NoticeContent & { type: "notice" })| (ExtendedContent & { type: string })
+export type EventContent = ((MetaContent & { type: "meta" }) | (MessageContent & { type: "message" }) | (NoticeContent & { type: "notice" })) & (ExtendedContent & { type: string })
