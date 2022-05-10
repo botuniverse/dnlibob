@@ -15,7 +15,7 @@ Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平�
 ## 最小实例
 
 ```ts
-import { OneBot, ImplConfig, DefaultHandler } from "https://deno.land/x/teyda_libonebot@0.2.4/src/mod.ts"
+import { OneBot, ImplConfig, DefaultHandler } from "https://deno.land/x/teyda_libonebot@0.2.5/src/mod.ts"
 
 const ob = new OneBot({
     impl: "idr",

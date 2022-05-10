@@ -17,23 +17,37 @@ export interface BaseMessageSegment<T, E> {
     data: E
 }
 
-export type TelegramMessageSegment = BaseMessageSegment<"mention", ExtendMessageSegment.Mention> | BaseMessageSegment<'telegram.bot_command' | 'telegram.url' | 'telegram.bold' | 'telegram.cashtag' | "telegram.italic" | "telegram.underline" | "telegram.strikethrough" | 'telegram.email' | "telegram.phone_number" | "telegram.spoiler" | "telegram.code", ExtendMessageSegment.RichText> | BaseMessageSegment<"telegram.text_mention", ExtendMessageSegment.TextMention> | BaseMessageSegment<"telegram.text_link", ExtendMessageSegment.TextLink> | MessageSegment
+export type TelegramMessageSegment = BaseMessageSegment<"mention", ExtendMessageSegment.Mention> | BaseMessageSegment<'telegram.bot_command' | 'telegram.url' | 'telegram.bold' | 'telegram.cashtag' | "telegram.italic" | "telegram.underline" | "telegram.strikethrough" | 'telegram.email' | "telegram.phone_number" | "telegram.spoiler" | "telegram.code", ExtendMessageSegment.RichText> | BaseMessageSegment<"telegram.text_mention", ExtendMessageSegment.TextMention> | BaseMessageSegment<"telegram.text_link", ExtendMessageSegment.TextLink> | BaseMessageSegment<"telegram.animation", ExtendMessageSegment.Animation> | BaseMessageSegment<"telegram.sticker", ExtendMessageSegment.Sticker> | MessageSegment
 
 export namespace ExtendMessageSegment {
     export interface Mention {
         user_id: "",
         'telegram.text': string
+        [prop: string]: any
     }
     export interface RichText {
         text: string
+        [prop: string]: any
     }
     export interface TextMention {
         user_id: string
         text: string
+        [prop: string]: any
     }
     export interface TextLink {
         text: string
         url: string
+        [prop: string]: any
+    }
+    export interface Sticker {
+        file_id: String
+        "telegram.emoji": string
+        "telegram.set_name": string
+        [prop: string]: any
+    }
+    export interface Animation {
+        file_id: String,
+        [prop: string]: any
     }
 }
 
@@ -109,6 +123,10 @@ export namespace MessageSegment {
             return content.data.text
         } else if (content.type === 'telegram.text_mention') {
             return `[文本提及:${content.data.user_id}]`
+        } else if (content.type === 'telegram.animation') {
+            return '[动图]'
+        } else if (content.type === 'telegram.sticker') {
+            return '[贴纸]'
         }
         return `[${content.type}]`
     }
