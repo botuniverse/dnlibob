@@ -10,57 +10,95 @@ export namespace Message {
     }
 }
 
-export type MessageSegment = BaseMessageSegment<"text", MessageSegment.Text> | BaseMessageSegment<"mention", MessageSegment.Mention> | BaseMessageSegment<"mention_all", MessageSegment.MentionAll> | BaseMessageSegment<"image", MessageSegment.Image> | BaseMessageSegment<"voice", MessageSegment.Voice> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"file", MessageSegment.File> | BaseMessageSegment<"location", MessageSegment.Location> | BaseMessageSegment<"reply", MessageSegment.Reply> | BaseMessageSegment<string, MessageSegment.Custom>
+export type MessageSegment = BaseMessageSegment<"text", MessageSegment.Text> | BaseMessageSegment<"mention", MessageSegment.Mention> | BaseMessageSegment<"mention_all", MessageSegment.MentionAll> | BaseMessageSegment<"image", MessageSegment.Image> | BaseMessageSegment<"voice", MessageSegment.Voice> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"audio", MessageSegment.Audio> | BaseMessageSegment<"video", MessageSegment.Video> | BaseMessageSegment<"file", MessageSegment.File> | BaseMessageSegment<"location", MessageSegment.Location> | BaseMessageSegment<"reply", MessageSegment.Reply>
 
 export interface BaseMessageSegment<T, E> {
     type: T,
     data: E
 }
 
+export type TelegramMessageSegment = MessageSegment | ExtendMessageSegment.Mention | ExtendMessageSegment.RichText | ExtendMessageSegment.TextLink | ExtendMessageSegment.TextMention
+
+export namespace ExtendMessageSegment {
+    export interface Mention {
+        type: "mention",
+        data: {
+            user_id: "",
+            'telegram.text': string
+        }
+    }
+    export interface RichText {
+        type: 'telegram.bot_command' | 'telegram.url' | 'telegram.bold' | 'telegram.cashtag' | "telegram.italic" | "telegram.underline" | "telegram.strikethrough" | 'telegram.email' | "telegram.phone_number" | "telegram.spoiler" | "telegram.code"
+        data: {
+            text: string
+        }
+    }
+    export interface TextMention {
+        type: 'telegram.text_mention'
+        data: {
+            user_id: string
+            text: string
+        }
+    }
+    export interface TextLink {
+        type: 'telegram.text_link'
+        data: {
+            text: string
+            url: string
+        }
+    }
+}
+
 export namespace MessageSegment {
-    export interface Text extends Custom {
+    export interface Text {
         text: string,
+        [prop: string]: any
     }
-    export interface Mention extends Custom {
+    export interface Mention {
         user_id: string,
+        [prop: string]: any
     }
-    export interface MentionAll extends Custom {
+    export interface MentionAll {
+        [prop: string]: any
     }
-    export interface Image extends Custom {
+    export interface Image {
         file_id: string,
+        [prop: string]: any
     }
-    export interface Voice extends Custom {
+    export interface Voice {
         file_id: string,
+        [prop: string]: any
     }
-    export interface Audio extends Custom {
+    export interface Audio {
         file_id: String,
+        [prop: string]: any
     }
-    export interface Video extends Custom {
+    export interface Video {
         file_id: String,
+        [prop: string]: any
     }
-    export interface File extends Custom {
+    export interface File {
         file_id: String,
+        [prop: string]: any
     }
-    export interface Location extends Custom {
+    export interface Location {
         latitude: number,
         longitude: number,
         title: string,
         content: string,
-    }
-    export interface Reply extends Custom {
-        message_id: string,
-        user_id: string,
-    }
-    export interface Custom {
         [prop: string]: any
     }
-    export function alt(content: MessageSegment): string {
-        let data = content.data
+    export interface Reply {
+        message_id: string,
+        user_id: string,
+        [prop: string]: any
+    }
+    export function alt(content: MessageSegment|TelegramMessageSegment): string {
         let telegramRich = ['telegram.bot_command', 'telegram.url', 'telegram.bold', 'telegram.cashtag', "telegram.italic", "telegram.underline", "telegram.strikethrough", 'telegram.email', "telegram.phone_number", "telegram.spoiler", "telegram.code"]
         if (content.type === "text") {
             return content.data.text
         } else if (content.type === "mention") {
-            return `[提及:${data.user_id}]`
+            return `[提及:${content.data.user_id}]`
         } else if (content.type === "mention_all") {
             return `[提及所有人]`
         } else if (content.type === "image") {
@@ -76,11 +114,13 @@ export namespace MessageSegment {
         } else if (content.type === "location") {
             return `[位置]`
         } else if (content.type === "reply") {
-            return `[回复:${data.message_id}]`
+            return `[回复:${content.data.message_id}]`
         } else if (content.type === "telegram.text_link") {
             return content.data.text
         } else if (telegramRich.includes(content.type)) {
             return content.data.text
+        }else if(content.type==='telegram.text_mention'){
+            return `[文本提及:${content.data.user_id}]`
         }
         return `[${content.type}]`
     }
