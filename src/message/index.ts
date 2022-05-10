@@ -1,4 +1,4 @@
-export type Message = MessageSegment[];
+export type Message = MessageSegment[] | TelegramMessageSegment[];
 
 export namespace Message {
     export function alt(content: Message): string {
@@ -17,35 +17,23 @@ export interface BaseMessageSegment<T, E> {
     data: E
 }
 
-export type TelegramMessageSegment = MessageSegment | ExtendMessageSegment.Mention | ExtendMessageSegment.RichText | ExtendMessageSegment.TextLink | ExtendMessageSegment.TextMention
+export type TelegramMessageSegment = BaseMessageSegment<"mention", ExtendMessageSegment.Mention> | BaseMessageSegment<'telegram.bot_command' | 'telegram.url' | 'telegram.bold' | 'telegram.cashtag' | "telegram.italic" | "telegram.underline" | "telegram.strikethrough" | 'telegram.email' | "telegram.phone_number" | "telegram.spoiler" | "telegram.code", ExtendMessageSegment.RichText> | BaseMessageSegment<"telegram.text_mention", ExtendMessageSegment.TextMention> | BaseMessageSegment<"telegram.text_link", ExtendMessageSegment.TextLink> | MessageSegment
 
 export namespace ExtendMessageSegment {
     export interface Mention {
-        type: "mention",
-        data: {
-            user_id: "",
-            'telegram.text': string
-        }
+        user_id: "",
+        'telegram.text': string
     }
     export interface RichText {
-        type: 'telegram.bot_command' | 'telegram.url' | 'telegram.bold' | 'telegram.cashtag' | "telegram.italic" | "telegram.underline" | "telegram.strikethrough" | 'telegram.email' | "telegram.phone_number" | "telegram.spoiler" | "telegram.code"
-        data: {
-            text: string
-        }
+        text: string
     }
     export interface TextMention {
-        type: 'telegram.text_mention'
-        data: {
-            user_id: string
-            text: string
-        }
+        user_id: string
+        text: string
     }
     export interface TextLink {
-        type: 'telegram.text_link'
-        data: {
-            text: string
-            url: string
-        }
+        text: string
+        url: string
     }
 }
 
@@ -93,7 +81,7 @@ export namespace MessageSegment {
         user_id: string,
         [prop: string]: any
     }
-    export function alt(content: MessageSegment|TelegramMessageSegment): string {
+    export function alt(content: MessageSegment | TelegramMessageSegment): string {
         let telegramRich = ['telegram.bot_command', 'telegram.url', 'telegram.bold', 'telegram.cashtag', "telegram.italic", "telegram.underline", "telegram.strikethrough", 'telegram.email', "telegram.phone_number", "telegram.spoiler", "telegram.code"]
         if (content.type === "text") {
             return content.data.text
@@ -119,7 +107,7 @@ export namespace MessageSegment {
             return content.data.text
         } else if (telegramRich.includes(content.type)) {
             return content.data.text
-        }else if(content.type==='telegram.text_mention'){
+        } else if (content.type === 'telegram.text_mention') {
             return `[文本提及:${content.data.user_id}]`
         }
         return `[${content.type}]`
