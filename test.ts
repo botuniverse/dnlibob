@@ -10,4 +10,5 @@ const ob = new OneBot({
 
 ob.run()
 
+
 //deno run --allow-all test.ts
