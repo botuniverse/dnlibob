@@ -4,10 +4,10 @@ export class Logger {
     constructor(private name: string, private extra: string = '') {
     }
     warn(text: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${Logger.yellow("[WARN]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
+        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color1("[WARN]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
     }
     info(text: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${rgb24("[INFO]", { r: 98, g: 190, b: 119 })} ${Logger.secondary(this.name + ":")}`, this.extra, text)
+        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color4("[INFO]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
     }
 }
 
@@ -18,25 +18,25 @@ export namespace Logger {
     export function secondary(text: string): string {
         return rgb24(text, { r: 108, g: 110, b: 107 })
     }
-    export function red(text: string): string {
-        return rgb24(text, { r: 199, g: 63, b: 74 })
+    export function color1(text: string): string {
+        return rgb24(text, 0xE3BCB5) /// https://www.qtccolor.com/secaiku/search?hex=E3BCB5&brand
     }
-    export function yellow(text: string): string {
-        return rgb24(text, { r: 250, g: 202, b: 48 })
+    export function color2(text: string): string {
+        return rgb24(text, 0xA7BEC6) /// https://www.qtccolor.com/secaiku/search?hex=A7BEC6&brand
     }
-    export function blue(text: string): string {
-        return rgb24(text, { r: 0, g: 162, b: 213 })
+    export function color3(text: string): string {
+        return rgb24(text, 0xF5F4F0) // https://www.qtccolor.com/secaiku/search?hex=F5F4F0&brand
     }
-    export function canaryYellow(text: string): string {
-        return rgb24(text, 0xF7F797)
+    export function color4(text: string): string {
+        return rgb24(text, 0xBFBFC1) /// https://www.qtccolor.com/secaiku/search?hex=BFBFC1&brand
     }
-    export function canaryGreen(text: string): string {
-        return rgb24(text, 0x70D6AF)
+    export function color5(text: string): string {
+        return rgb24(text, 0xB4A29E) /// https://www.qtccolor.com/secaiku/search?hex=B4A29E&brand
     }
-    export function canaryBlue(text: string): string {
-        return rgb24(text, 0x7DC6E2)
+    export function color6(text: string): string {
+        return rgb24(text, 0xE0D3C3) /// https://www.qtccolor.com/secaiku/search?hex=E0D3C3&brand
     }
-    export function blue2(text: string): string {
-        return rgb24(text, 0x7C9ED9)
+    export function color7(text: string): string {
+        return rgb24(text, 0xEBE8E3) // https://www.qtccolor.com/secaiku/search?hex=EBE8E3&brand
     }
 }
