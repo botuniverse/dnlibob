@@ -39,4 +39,10 @@ export namespace Logger {
     export function color7(text: string): string {
         return rgb24(text, 0xEBE8E3) // https://www.qtccolor.com/secaiku/search?hex=EBE8E3&brand
     }
+    export function color8(text: string): string {
+        return rgb24(text, 0xDECFCC) // https://www.qtccolor.com/secaiku/search?hex=DECFCC&brand
+    }
+    export function color9(text: string): string {
+        return rgb24(text, 0xDEE0EC) // https://www.qtccolor.com/secaiku/search?hex=DEE0EC&brand
+    }
 }
