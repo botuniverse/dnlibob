@@ -3,7 +3,7 @@
 [![OneBot](https://img.shields.io/badge/OneBot-12-black)](https://12.onebot.dev/)
 [![Version](https://img.shields.io/github/v/tag/teyda/teyda_libonebot.svg)](https://github.com/teyda/teyda_libonebot/releases)
 [![License](https://img.shields.io/github/license/teyda/teyda_libonebot)](https://github.com/teyda/teyda_libonebot/blob/main/LICENSE)
-[![Deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https://deno.land/x/teyda_libonebot/src/mod.ts)
+[![Deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https://deno.land/x/teyda_libonebot/mod.ts)
 
 Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平台实现 OneBot v12 接口标准。
 
@@ -15,7 +15,7 @@ Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平�
 ## 最小实例
 
 ```ts
-import { App, ImplConfig, DefaultHandler } from 'https://deno.land/x/teyda_libonebot@0.3.0/src/mod.ts'
+import { App, ImplConfig, DefaultHandler } from 'https://deno.land/x/teyda_libonebot@0.3.0/mod.ts'
 
 const ob = new App({
     impl: 'test',
