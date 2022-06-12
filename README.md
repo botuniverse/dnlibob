@@ -15,12 +15,12 @@ Deno 的 LibOneBot 库，可以帮助开发者快速在新的聊天机器人平�
 ## 最小实例
 
 ```ts
-import { OneBot, ImplConfig, DefaultHandler } from "https://deno.land/x/teyda_libonebot@0.2.9/src/mod.ts"
+import { App, ImplConfig, DefaultHandler } from 'https://deno.land/x/teyda_libonebot@0.3.0/src/mod.ts'
 
-const ob = new OneBot({
-    impl: "idr",
-    platform: "telegram",
-    self_id: "114514",
+const ob = new App({
+    impl: 'test',
+    platform: 'empty',
+    self_id: '10001',
     config: ImplConfig.Default(),
     action_handler: new DefaultHandler()
 })

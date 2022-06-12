@@ -1,10 +1,10 @@
 
-/// OneBot 实现端设置项
+/** OneBot 实现端设置项 */
 export interface ImplConfig {
-    heartbeat: Heartbeat,
-    http: HttpServer[],
-    http_webhook: HttpClient[],
-    websocket: WebSocketServer[],
+    heartbeat: Heartbeat
+    http: HttpServer[]
+    http_webhook: HttpClient[]
+    websocket: WebSocketServer[]
     websocket_rev: WebSocketClient[]
 }
 
@@ -20,9 +20,11 @@ export namespace ImplConfig {
     }
 }
 
-/// OneBot 心跳设置
+/** OneBot 心跳设置 */
 export interface Heartbeat {
-    enabled: boolean,
+    /** 是否启用心跳 */
+    enabled: boolean
+    /** 心跳间隔，单位：毫秒，必须大于 0 */
     interval: number
 }
 
@@ -35,13 +37,18 @@ export namespace Heartbeat {
     }
 }
 
-/// OneBot Impl Http 通讯设置
+/** OneBot Impl Http 通讯设置 */
 export interface HttpServer {
-    host: string,
-    port: number,
-    access_token?: string | null,
-    event_enable: boolean,
-    event_buffer_size: number,
+    /** HTTP 服务器监听 IP */
+    host: string
+    /** HTTP 服务器监听端口 */
+    port: number
+    /** 访问令牌 */
+    access_token?: string
+    /** 是否启用 `get_latest_events` 元动作 */
+    event_enable: boolean
+    /** 事件缓冲区大小，超过该大小将会丢弃最旧的事件，0 表示不限大小 */
+    event_buffer_size: number
 }
 
 export namespace HttpServer {
@@ -55,29 +62,31 @@ export namespace HttpServer {
     }
 }
 
-/// OneBot Impl Http Webhook 通讯设置
+/** OneBot Impl Http Webhook 通讯设置 */
 export interface HttpClient {
-    url: string,
-    access_token?: string | null,
-    timeout: number,
+    url: string
+    access_token?: string
+    timeout: number
 }
 
 export namespace HttpClient {
     export function Default(): HttpClient {
         return {
             url: "http://127.0.0.1:6900",
-            access_token: null,
             timeout: 4
         }
     }
 
 }
 
-/// OneBot WebSocket 服务器设置
+/** OneBot WebSocket 服务器设置 */
 export interface WebSocketServer {
-    host: string,
-    port: number,
-    access_token?: string | null,
+    /** WebSocket 服务器监听 IP */
+    host: string
+    /** WebSocket 服务器监听端口 */
+    port: number
+    /** 访问令牌 */
+    access_token?: string
 }
 
 export namespace WebSocketServer {
@@ -89,11 +98,14 @@ export namespace WebSocketServer {
     }
 }
 
-/// OneBot Impl 反向 WebSocket 通讯设置
+/** OneBot Impl 反向 WebSocket 通讯设置 */
 export interface WebSocketClient {
-    url: string,
-    access_token?: string | null,
-    reconnect_interval: number,
+    /** 反向 WebSocket 连接地址 */
+    url: string
+    /** 访问令牌 */
+    access_token?: string
+    /** 反向 WebSocket 重连间隔，单位：毫秒，必须大于 0 */
+    reconnect_interval: number
 }
 
 export namespace WebSocketClient {

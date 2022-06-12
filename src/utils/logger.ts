@@ -1,13 +1,13 @@
 import { format, rgb24 } from "../../deps.ts"
 
 export class Logger {
-    constructor(private name: string, private extra: string = '') {
+    constructor(private name: string, private extra: string[] = []) {
     }
     warn(text: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color1("[WARN]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
+        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color1("[WARN]")} ${Logger.secondary(this.name + ":")}`, ...this.extra, text)
     }
     info(text: any): void {
-        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color4("[INFO]")} ${Logger.secondary(this.name + ":")}`, this.extra, text)
+        return console.log(`${Logger.secondary(Logger.time())} ${Logger.color4("[INFO]")} ${Logger.secondary(this.name + ":")}`, ...this.extra, text)
     }
 }
 
@@ -45,7 +45,7 @@ export namespace Logger {
     export function color9(text: string): string {
         return rgb24(text, 0xDEE0EC) // https://www.qtccolor.com/secaiku/search?hex=DEE0EC&brand
     }
-    export function color10(text: string): string{
+    export function color10(text: string): string {
         return rgb24(text, 0xBFCAC2) // https://www.qtccolor.com/secaiku/search?hex=BFCAC2&brand
     }
 }

@@ -1,13 +1,13 @@
-import { OneBot, ImplConfig, DefaultHandler } from "./src/mod.ts"
+import { App, ImplConfig, DefaultHandler } from "./mod.ts"
 
-const ob = new OneBot({
-    impl: "idr",
-    platform: "telegram",
-    self_id: "114514",
+const ob = new App({
+    impl: 'test',
+    platform: 'empty',
+    self_id: '10001',
     config: ImplConfig.Default(),
     action_handler: new DefaultHandler()
 })
 
 ob.run()
 
-//deno run --allow-all test.ts
+// deno run -A test.ts

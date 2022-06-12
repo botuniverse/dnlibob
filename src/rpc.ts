@@ -1,16 +1,14 @@
-import { oak } from "../deps.ts";
-import { Logger } from "./utils/logger.ts";
+import { oak } from "../deps.ts"
 //import { Storage } from "./utils/storage.ts"
-import { ActionHandler } from "./handle/index.ts"
-import { CustomOneBot } from "./impls/index.ts"
+import { ActionHandler } from "./handle/mod.ts"
+import { App } from "./impls/mod.ts"
 import { HttpClient, HttpServer, WebSocketClient, WebSocketServer } from "./config.ts"
 import { parseJson } from "./utils/parse.ts"
-
-const logger = new Logger("Teyda_libonebot")
+import { Logger } from "./utils/logger.ts"
 
 class HttpRegistry<E, A, R> extends Array {
     //private storages: Storage[] = []
-    constructor(private action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>, private ob: CustomOneBot<E, A, R>) {
+    constructor(private action_handler: ActionHandler<A, R, App<E, A, R>>, private ob: App<E, A, R>) {
         super()
     }
     async create(config: HttpServer) {
@@ -33,7 +31,7 @@ class HttpRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`HTTP 监听在 ${Logger.color2(config.host + ":" + config.port)}`)
+        this.ob.logger.info(`HTTP 监听在 ${Logger.color2(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -73,7 +71,7 @@ class WebhookRegistry extends Array {
 
 class WsRegistry<E, A, R> extends Array {
     private sockets: WebSocket[] = []
-    constructor(private action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>, private ob: CustomOneBot<E, A, R>) {
+    constructor(private action_handler: ActionHandler<A, R, App<E, A, R>>, private ob: App<E, A, R>) {
         super()
     }
     async create(config: WebSocketServer) {
@@ -85,13 +83,13 @@ class WsRegistry<E, A, R> extends Array {
                 ctx.upgrade()
                 this.sockets.push(ctx.socket!)
                 ctx.socket!.addEventListener("open", () => {
-                    logger.info(`新的 WebSocket 连接来自 ${ctx.request.ip}`)
+                    this.ob.logger.info(`新的 WebSocket 连接来自 ${ctx.request.ip}`)
                 })
                 ctx.socket!.addEventListener("message", async (e) => {
                     let parsed: any = parseJson(e.data)
                     if (parsed !== null) {
                         if (typeof parsed.action === "undefined" || typeof parsed.params === "undefined") {
-                            logger.warn(`请求格式不正确: "${e.data}"`)
+                            this.ob.logger.warn(`请求格式不正确: "${e.data}"`)
                             return false
                         }
                         let echo: Record<string, any> = {}
@@ -102,7 +100,7 @@ class WsRegistry<E, A, R> extends Array {
                         let data: R = await this.action_handler.handle(parsed, this.ob)
                         ctx.socket!.send(JSON.stringify(Object.assign(data, echo)))
                     } else {
-                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
+                        this.ob.logger.warn(`JSON 反序列化失败: "${e.data}"`)
                     }
                 })
             }
@@ -110,7 +108,7 @@ class WsRegistry<E, A, R> extends Array {
         const controller = new AbortController();
         const { signal } = controller;
         super.push(controller)
-        logger.info(`WebSocket 监听在 ${Logger.color2(config.host + ":" + config.port)}`)
+        this.ob.logger.info(`WebSocket 监听在 ${Logger.color2(config.host + ":" + config.port)}`)
         await app.listen({
             hostname: config.host, port: config.port, signal
         });
@@ -136,20 +134,20 @@ class WsRegistry<E, A, R> extends Array {
 
 class WsrRegistry<E, A, R> extends Array {
     private sockets: WebSocket[] = []
-    constructor(private action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>, private ob: CustomOneBot<E, A, R>) {
+    constructor(private action_handler: ActionHandler<A, R, App<E, A, R>>, private ob: App<E, A, R>) {
         super()
     }
     async create(config: WebSocketClient) {
-        const app = new Wsr()
+        const app = new Wsr(this.ob.logger)
         app.connect({
             url: config.url, reconnect_interval: config.reconnect_interval, add_callback: (socket) => {
                 this.sockets.push(socket)
-                socket.addEventListener("open", () => logger.info(`成功连接到 ${config.url}`))
+                socket.addEventListener("open", () => this.ob.logger.info(`成功连接到 ${config.url}`))
                 socket.addEventListener("message", async (e) => {
                     let parsed: any = parseJson(e.data)
                     if (parsed !== null) {
                         if (typeof parsed.action === "undefined" || typeof parsed.params === "undefined") {
-                            logger.warn(`请求格式不正确: "${e.data}"`)
+                            this.ob.logger.warn(`请求格式不正确: "${e.data}"`)
                             return false
                         }
                         let echo: Record<string, any> = {}
@@ -160,7 +158,7 @@ class WsrRegistry<E, A, R> extends Array {
                         let data: R = await this.action_handler.handle(parsed, this.ob)
                         socket.send(JSON.stringify(Object.assign(data, echo)))
                     } else {
-                        logger.warn(`JSON 反序列化失败: "${e.data}"`)
+                        this.ob.logger.warn(`JSON 反序列化失败: "${e.data}"`)
                     }
                 })
             }, del_callback: (socket) => {
@@ -186,7 +184,7 @@ class WsrRegistry<E, A, R> extends Array {
 
 export class Rpc<E, A, R> {
     public all: Record<string, HttpRegistry<E, A, R> | WsRegistry<E, A, R> | WsrRegistry<E, A, R> | WebhookRegistry> = {}
-    constructor(private action_handler: ActionHandler<A, R, CustomOneBot<E, A, R>>, private ob: CustomOneBot<E, A, R>) {
+    constructor(private action_handler: ActionHandler<A, R, App<E, A, R>>, private ob: App<E, A, R>) {
     }
     http(config: HttpServer[]) {
         const http = new HttpRegistry(this.action_handler, this.ob);
@@ -237,14 +235,14 @@ class Wsr {
     private add_callback: (arg0: WebSocket) => void
     private del_callback: (arg0: WebSocket | null) => void
     private running: boolean = false
-    constructor() {
+    constructor(private logger: Logger) {
         this.add_callback = () => { }
         this.del_callback = () => { }
     }
     reconnect() {
-        logger.warn(`无法连接到 ${Logger.color2(this.url)}`)
+        this.logger.warn(`无法连接到 ${Logger.color2(this.url)}`)
         this.del_callback(this.socket)
-        logger.info(`${this.reconnect_interval} 秒钟后重试`)
+        this.logger.info(`${this.reconnect_interval} 秒钟后重试`)
         setTimeout(() => {
             if (this.running) {
                 this.socket = new WebSocket(this.url)
@@ -254,13 +252,13 @@ class Wsr {
         }, this.reconnect_interval * 1000)
     }
     connect(config: WsrConfig) {
-        logger.info(`正在启动 WebSocket 反向服务器。`)
+        this.logger.info(`正在启动 WebSocket 反向服务器。`)
         this.running = true
         this.url = config.url
         this.reconnect_interval = config.reconnect_interval
         this.add_callback = config.add_callback
         this.del_callback = config.del_callback
-        logger.info(`开始尝试连接到 ${Logger.color2(this.url)}`)
+        this.logger.info(`开始尝试连接到 ${Logger.color2(this.url)}`)
         this.socket = new WebSocket(config.url)
         this.socket.addEventListener("close", this.reconnect.bind(this))
         this.add_callback(this.socket)
