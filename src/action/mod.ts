@@ -4,7 +4,7 @@ import { ExtendedMap } from '../utils/value.ts'
 /** OneBot 12 动作请求
  * - **动作请求**是应用端为了主动向 OneBot 实现请求服务而发送的数据
  */
-export type StandardAction = Action.GetLatestEvents | Action.GetSupportedActions | Action.GetStatus | Action.GetVersion | Action.GetSelfInfo | Action.GetUserInfo | Action.GetFriendList | Action.GetGroupInfo | Action.GetGroupList | Action.GetGroupMemberInfo | Action.GetGroupMemberList | Action.SetGroupName | Action.LeaveGroup | Action.KickGroupMember | Action.BanGroupMember | Action.UnbanGroupMember | Action.SetGroupAdmin | Action.UnsetGroupAdmin | Action.GetGuildInfo | Action.GetGuildList | Action.GetChannelInfo | Action.GetChannelList | Action.GetGuildMemberInfo | Action.GetGuildMemberList | Action.SetGuildName | Action.SetChannelName | Action.LeaveGuild | Action.UploadFile | Action.UploadFileFragmented | Action.GetFile | Action.GetFileFragmented
+export type StandardAction = Action.GetLatestEvents | Action.GetSupportedActions | Action.GetStatus | Action.GetVersion | Action.GetSelfInfo | Action.GetUserInfo | Action.GetFriendList | Action.GetGroupInfo | Action.GetGroupList | Action.GetGroupMemberInfo | Action.GetGroupMemberList | Action.SetGroupName | Action.LeaveGroup | Action.GetGuildInfo | Action.GetGuildList | Action.GetChannelInfo | Action.GetChannelList | Action.GetGuildMemberInfo | Action.GetGuildMemberList | Action.SetGuildName | Action.SetChannelName | Action.LeaveGuild | Action.UploadFile | Action.UploadFileFragmented | Action.GetFile | Action.GetFileFragmented
 
 export namespace Action {
 
@@ -154,56 +154,6 @@ export namespace Action {
     export interface _BaseLeaveGroup {
         /** 群 ID */
         group_id: string
-    }
-
-    /** 踢出群成员 */
-    export type KickGroupMember<K extends ExtendedMap = {}> = _Base<'kick_group_member', _BaseKickGroupMember> & K
-
-    export interface _BaseKickGroupMember {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-    }
-
-    /** 禁言群成员 */
-    export type BanGroupMember<K extends ExtendedMap = {}> = _Base<'ban_group_member', _BaseBanGroupMember> & K
-
-    export interface _BaseBanGroupMember {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-    }
-
-    /** 取消禁言群成员 */
-    export type UnbanGroupMember<K extends ExtendedMap = {}> = _Base<'unban_group_member', _BaseUnbanGroupMember> & K
-
-    export interface _BaseUnbanGroupMember {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-    }
-
-    /** 设置群管理员 */
-    export type SetGroupAdmin<K extends ExtendedMap = {}> = _Base<'set_group_admin', _BaseSetGroupAdmin> & K
-
-    export interface _BaseSetGroupAdmin {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-    }
-
-    /** 取消设置群管理员 */
-    export type UnsetGroupAdmin<K extends ExtendedMap = {}> = _Base<'unset_group_admin', _BaseUnsetGroupAdmin> & K
-
-    export interface _BaseUnsetGroupAdmin {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
     }
 
 

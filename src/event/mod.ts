@@ -30,7 +30,7 @@ export interface BaseEventInterface<T extends string> {
     platform: string
     /** 机器人自身 ID */
     self_id: string
-    /** 事件发生时间 */
+    /** 事件发生时间（Unix 时间戳），单位：秒，建议优先采用聊天平台给出的时间，其次采用实现中创建事件对象的时间 */
     time: number
     /** 事件类型，必须是 `meta`、`message`、`notice`、`request` 中的一个，分别表示元事件、消息事件、通知事件和请求事件 */
     type: T

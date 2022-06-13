@@ -3,7 +3,7 @@ import { ExtendedMap } from '../utils/value.ts'
 /** OneBot 通知事件 Content
  * - 通知事件是机器人平台向机器人发送通知对应的事件，例如群成员变动等
  */
-export type NoticeContent<D extends Record<'detail_type', any> = NoticeContent.GroupMemberIncrease | NoticeContent.GroupMemberDecrease | NoticeContent.GroupMemberBan | NoticeContent.GroupMemberUnban | NoticeContent.GroupAdminSet | NoticeContent.GroupAdminUnset | NoticeContent.GroupMessageDelete | NoticeContent.PrivateMessageDelete | NoticeContent.FriendDecrease | NoticeContent.FriendIncrease | NoticeContent.GuildMemberDecrease | NoticeContent.GuildMemberIncrease | NoticeContent.ChannelCreate | NoticeContent.ChannelDelete | NoticeContent.ChannelMessageDelete, K extends ExtendedMap = {}> = D & K
+export type NoticeContent<D extends Record<'detail_type', any> = NoticeContent.GroupMemberIncrease | NoticeContent.GroupMemberDecrease | NoticeContent.GroupMessageDelete | NoticeContent.PrivateMessageDelete | NoticeContent.FriendDecrease | NoticeContent.FriendIncrease | NoticeContent.GuildMemberDecrease | NoticeContent.GuildMemberIncrease | NoticeContent.ChannelCreate | NoticeContent.ChannelDelete | NoticeContent.ChannelMessageDelete, K extends ExtendedMap = {}> = D & K
 
 export namespace NoticeContent {
 
@@ -130,70 +130,6 @@ export namespace NoticeContent {
         sub_type: string
         /** 必须为 `group_member_decrease` */
         detail_type: 'group_member_decrease'
-    }
-
-    /** 群成员禁言
-     * - 本事件应在群成员（包括机器人自身）被禁言时触发
-     */
-    export type GroupMemberBan<K extends ExtendedMap = {}> = _BaseGroupMemberBan & K
-
-    export interface _BaseGroupMemberBan {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-        /** 操作者 ID */
-        operator_id: string
-        /** 必须为 `group_member_ban` */
-        detail_type: 'group_member_ban'
-    }
-
-    /** 群成员解除禁言
-     * - 本事件应在群成员（包括机器人自身）被解除禁言时触发
-     */
-    export type GroupMemberUnban<K extends ExtendedMap = {}> = _BaseGroupMemberUnban & K
-
-    export interface _BaseGroupMemberUnban {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-        /** 操作者 ID */
-        operator_id: string
-        /** 必须为 `group_member_unban` */
-        detail_type: 'group_member_unban'
-    }
-
-    /** 群管理员设置
-     * - 本事件应在群成员（包括机器人自身）被设置为管理员时触发
-     */
-    export type GroupAdminSet<K extends ExtendedMap = {}> = _BaseGroupAdminSet & K
-
-    export interface _BaseGroupAdminSet {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-        /** 操作者 ID */
-        operator_id: string
-        /** 必须为 `group_admin_set` */
-        detail_type: 'group_admin_set'
-    }
-
-    /** 群管理员取消设置
-     * - 本事件应在群成员（包括机器人自身）的管理员身份被取消时触发
-     */
-    export type GroupAdminUnset<K extends ExtendedMap = {}> = _BaseGroupAdminUnset & K
-
-    export interface _BaseGroupAdminUnset {
-        /** 群 ID */
-        group_id: string
-        /** 用户 ID */
-        user_id: string
-        /** 操作者 ID */
-        operator_id: string
-        /** 必须为 `group_admin_unset` */
-        detail_type: 'group_admin_unset'
     }
 
     /** 群消息删除
