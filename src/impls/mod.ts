@@ -3,7 +3,7 @@ import { Rpc } from "../rpc.ts"
 import { Logger } from "../utils/logger.ts"
 import { ActionHandler } from "../handle/mod.ts"
 import { MetaEvent, StandardEvent, BaseEvent } from "../event/mod.ts"
-import { StandardAction } from "../action/mod.ts"
+import { TotalAction } from "../action/mod.ts"
 import { Resps, RespContent } from "../resp.ts"
 
 export namespace App {
@@ -19,7 +19,7 @@ export namespace App {
 /** OneBot Implementation 实例
  * - E: Event 可以参考 src/event/index.ts, A: Action 可以参考 src/action.ts, R: ActionResp 可以参考 src/resp.ts
  */
-export class App<E = StandardEvent, A = StandardAction, R = Resps> {
+export class App<E = StandardEvent, A = TotalAction, R = Resps> {
     #rpc: Rpc<E, A, R> | null = null
     public impl: string
     public platform: string
@@ -39,7 +39,7 @@ export class App<E = StandardEvent, A = StandardAction, R = Resps> {
         this.self_id = config.self_id
         this.config = config.config
         this.action_handler = config.action_handler
-        this.logger = new Logger(`${this.impl}(Teyda_libonebot)`,[`[${Logger.color6(this.platform)}:${Logger.color5(this.self_id)}]`])
+        this.logger = new Logger(`${this.impl}(Teyda_libonebot)`, [`[${Logger.color6(this.platform)}:${Logger.color5(this.self_id)}]`])
     }
     run(): void {
         this.logger.info(`Onebot 12 模块正在启动`)
