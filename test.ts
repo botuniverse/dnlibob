@@ -10,6 +10,7 @@ ob.start({
     },
     wsr: [{
         host: '127.0.0.1',
-        port: 9322
+        port: 9322,
+        send_msgpack: false
     }]
 })

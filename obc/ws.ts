@@ -5,9 +5,10 @@ export interface WebSocketClientConfig {
     url: string
     access_token?: string
     reconnect_interval: number
+    send_msgpack: boolean
 }
 
-export class WebSocketClient<R> {
+export class WebSocketClient<R, E> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
@@ -20,14 +21,10 @@ export class WebSocketClient<R> {
                 this.status !== 'shutdown' && this.connect(url, reconnect_interval)
             }, reconnect_interval)
         })
-        this.ws.addEventListener('message', (e) => {
-            let data = {}
-            if (typeof e.data === 'string') {
-                data = JSON.parse(e.data)
-            } else {
-                data = msgpack.decode(e.data)!
-            }
-            this.handler(data)
+        this.ws.addEventListener('message', async (e) => {
+            const data = typeof e.data === 'string' ? JSON.parse(e.data) : msgpack.decode(e.data)
+            const resp = await this.handler(data)
+            this.send(resp)
         })
     }
     public start(signal: AbortSignal): void {
@@ -43,9 +40,13 @@ export class WebSocketClient<R> {
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: string | ArrayBuffer): void {
+    public send(data: R | E): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
-            this.ws.send(data)
+            if (this.config.send_msgpack) {
+                this.ws.send(msgpack.encode(data))
+            } else {
+                this.ws.send(JSON.stringify(data))
+            }
         }
     }
 }
@@ -54,9 +55,10 @@ export interface WebSocketServerConfig {
     host: string
     port: number
     access_token?: string
+    send_msgpack: boolean
 }
 
-export class WebSocketServer<R> {
+export class WebSocketServer<R, E> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
@@ -76,26 +78,26 @@ export class WebSocketServer<R> {
             }
             socket.addEventListener('open', () => {
                 this.ws = socket
-                this.ws.addEventListener('message', (e) => {
-                    let data = {}
-                    if (typeof e.data === 'string') {
-                        data = JSON.parse(e.data)
-                    } else {
-                        data = msgpack.decode(e.data)!
-                    }
-                    this.handler(data)
+                this.ws.addEventListener('message', async (e) => {
+                    const data = typeof e.data === 'string' ? JSON.parse(e.data) : msgpack.decode(e.data)
+                    const resp = await this.handler(data)
+                    this.send(resp)
                 })
             })
             return response
-        }, { hostname: this.config.host, port: this.config.port })
+        }, { hostname: this.config.host, port: this.config.port, signal: signal })
     }
     public shutdown(): void {
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: string | ArrayBuffer): void {
+    public send(data: R | E): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
-            this.ws.send(data)
+            if (this.config.send_msgpack) {
+                this.ws.send(msgpack.encode(data))
+            } else {
+                this.ws.send(JSON.stringify(data))
+            }
         }
     }
 }
