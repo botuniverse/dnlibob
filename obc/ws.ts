@@ -8,11 +8,11 @@ export interface WebSocketClientConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketClient<R, E> {
+export class WebSocketClient<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private handler: (data: unknown) => R) {
+    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private handler: (data: A) => Promise<R>) {
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -58,11 +58,11 @@ export interface WebSocketServerConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketServer<R, E> {
+export class WebSocketServer<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private handler: (data: unknown) => R) {
+    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private handler: (data: A) => Promise<R>) {
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'

@@ -1,8 +1,10 @@
 export * from './model/mod.ts'
 
-import { AllResps, AllEvents } from './model/mod.ts'
+import { AllResps, AllEvents, AllActions } from './model/mod.ts'
 import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig } from './obc/mod.ts'
 import { Logger } from './deps.ts'
+
+export { Logger }
 
 export interface OneBotConfig {
     basic: {
@@ -13,12 +15,12 @@ export interface OneBotConfig {
     wsr?: WebSocketServerConfig[]
 }
 
-export class OneBot<R = AllResps, E = AllEvents> {
-    private obcs: (WebSocketClient<R, E> | WebSocketServer<R, E>)[] = []
+export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends AllActions = AllActions> {
+    private obcs: (WebSocketClient<R, E, A> | WebSocketServer<R, E, A>)[] = []
     private abort_controller: AbortController | undefined
     private logger: Logger = new Logger('dnlibob')
 
-    constructor(private action_hanler: (data: unknown) => R) {
+    constructor(private action_hanler: (data: A) => Promise<R>) {
     }
     public start(config: OneBotConfig) {
         this.logger.info(`${config.basic.impl}正在启动中`)

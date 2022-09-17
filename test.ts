@@ -1,6 +1,14 @@
-import { OneBot } from './mod.ts'
+import { OneBot, MetaResps } from './mod.ts'
 
-const ob = new OneBot(() => {
+// deno-lint-ignore require-await
+const ob = new OneBot(async (_action) => {
+    const resp: MetaResps = {
+        status: "ok",
+        retcode: 0,
+        data: [],
+        message: ''
+    }
+    return resp
 })
 
 ob.start({
