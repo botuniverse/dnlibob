@@ -1,17 +1,19 @@
-import * as TE from './types.ts'
+import * as EventsDetail from './detail.ts'
 
-export type MetaEvents = TE.Heartbeat | TE.StatusUpdate
+export type MetaEvents = EventsDetail.Heartbeat | EventsDetail.StatusUpdate
 
-export type UserMessageEvents = TE.Private
+export type UserMessageEvents = EventsDetail.Private
 
-export type GroupMessageEvents = TE.Group
+export type GroupMessageEvents = EventsDetail.Group
 
-export type GuildMessageEvents = TE.Channel
+export type GuildMessageEvents = EventsDetail.Channel
 
-export type UserNoticeEvents = TE.FriendIncrease | TE.FriendDecrease | TE.PrivateMessageDelete
+export type UserNoticeEvents = EventsDetail.FriendIncrease | EventsDetail.FriendDecrease | EventsDetail.PrivateMessageDelete
 
-export type GroupNoticeEvents = TE.GroupMemberIncrease | TE.GroupMemberDecrease | TE.GroupMessageDelete
+export type GroupNoticeEvents = EventsDetail.GroupMemberIncrease | EventsDetail.GroupMemberDecrease | EventsDetail.GroupMessageDelete
 
-export type GuildNoticeEvents = TE.GuildMemberIncrease | TE.GuildMemberDecrease | TE.ChannelMemberIncrease | TE.ChannelMemberDecrease | TE.ChannelMessageDelete | TE.ChannelCreate | TE.ChannelDelete
+export type GuildNoticeEvents = EventsDetail.GuildMemberIncrease | EventsDetail.GuildMemberDecrease | EventsDetail.ChannelMemberIncrease | EventsDetail.ChannelMemberDecrease | EventsDetail.ChannelMessageDelete | EventsDetail.ChannelCreate | EventsDetail.ChannelDelete
 
 export type AllEvents = MetaEvents | UserMessageEvents | GroupMessageEvents | GuildMessageEvents | UserNoticeEvents | GroupNoticeEvents | GuildNoticeEvents
+
+export { EventsDetail }

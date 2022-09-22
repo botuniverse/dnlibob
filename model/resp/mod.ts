@@ -1,15 +1,17 @@
-import * as TR from './types.ts'
+import * as RespsDetail from './detail.ts'
 
-export type MetaResps = TR.GetLatestEvents | TR.GetStatus | TR.GetSupportedActions | TR.GetVersion
+export type MetaResps = RespsDetail.GetLatestEvents | RespsDetail.GetStatus | RespsDetail.GetSupportedActions | RespsDetail.GetVersion
 
-export type MessageResps = TR.SendMessage | TR.DeleteMessage
+export type MessageResps = RespsDetail.SendMessage | RespsDetail.DeleteMessage
 
-export type UserResps = TR.GetSelfInfo | TR.GetUserInfo | TR.GetFriendList
+export type UserResps = RespsDetail.GetSelfInfo | RespsDetail.GetUserInfo | RespsDetail.GetFriendList
 
-export type GroupResps = TR.GetGroupInfo | TR.GetGroupList | TR.GetGroupMemberInfo | TR.SetGroupName | TR.LeaveGroup
+export type GroupResps = RespsDetail.GetGroupInfo | RespsDetail.GetGroupList | RespsDetail.GetGroupMemberInfo | RespsDetail.SetGroupName | RespsDetail.LeaveGroup
 
-export type GuildResps = TR.GetGuildInfo | TR.GetGuildList | TR.GetGuildInfo | TR.GetGuildMemberInfo | TR.GetGuildMemberList | TR.LeaveGuild | TR.GetChannelInfo | TR.GetChannelList | TR.SetChannelName | TR.GetChannelMemberInfo | TR.GetChannelMemberList | TR.LeaveChannel
+export type GuildResps = RespsDetail.GetGuildInfo | RespsDetail.GetGuildList | RespsDetail.GetGuildInfo | RespsDetail.GetGuildMemberInfo | RespsDetail.GetGuildMemberList | RespsDetail.LeaveGuild | RespsDetail.GetChannelInfo | RespsDetail.GetChannelList | RespsDetail.SetChannelName | RespsDetail.GetChannelMemberInfo | RespsDetail.GetChannelMemberList | RespsDetail.LeaveChannel
 
-export type FileResps = TR.UploadFile | TR.UploadFileFragmentedPrepare | TR.UploadFileFragmentedTransfer | TR.UploadFileFragmentedFinish | TR.GetFile | TR.GetFileFragmentedPrepare | TR.GetFileFragmentedTransfer
+export type FileResps = RespsDetail.UploadFile | RespsDetail.UploadFileFragmentedPrepare | RespsDetail.UploadFileFragmentedTransfer | RespsDetail.UploadFileFragmentedFinish | RespsDetail.GetFile | RespsDetail.GetFileFragmentedPrepare | RespsDetail.GetFileFragmentedTransfer
 
 export type AllResps = MetaResps | MessageResps | UserResps | GroupResps | GuildResps
+
+export { RespsDetail }

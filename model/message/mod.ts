@@ -1,5 +1,7 @@
-import * as TM from './types.ts'
+import * as MessageSegmentsDetail from './detail.ts'
 
-export type MessageSegments = TM.Text | TM.Mention | TM.MentionAll | TM.Image | TM.Voice | TM.Audio | TM.Video | TM.File | TM.Location | TM.Reply
+export type MessageSegments = MessageSegmentsDetail.Text | MessageSegmentsDetail.Mention | MessageSegmentsDetail.MentionAll | MessageSegmentsDetail.Image | MessageSegmentsDetail.Voice | MessageSegmentsDetail.Audio | MessageSegmentsDetail.Video | MessageSegmentsDetail.File | MessageSegmentsDetail.Location | MessageSegmentsDetail.Reply
 
-export type Message = MessageSegments[]
+export { MessageSegmentsDetail }
+
+export type Message<T extends MessageSegmentsDetail.MessageSegment = MessageSegments> = T[]

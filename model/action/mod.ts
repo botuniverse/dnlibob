@@ -1,15 +1,17 @@
-import * as TA from './types.ts'
+import * as ActionsDetail from './detail.ts'
 
-export type MetaActions = TA.GetLatestEvents | TA.GetStatus | TA.GetSupportedActions | TA.GetVersion
+export type MetaActions = ActionsDetail.GetLatestEvents | ActionsDetail.GetStatus | ActionsDetail.GetSupportedActions | ActionsDetail.GetVersion
 
-export type MessageActions = TA.SendMessage | TA.DeleteMessage
+export type MessageActions = ActionsDetail.SendMessage | ActionsDetail.DeleteMessage
 
-export type UserActions = TA.GetSelfInfo | TA.GetUserInfo | TA.GetFriendList
+export type UserActions = ActionsDetail.GetSelfInfo | ActionsDetail.GetUserInfo | ActionsDetail.GetFriendList
 
-export type GroupActions = TA.GetGroupInfo | TA.GetGroupList | TA.GetGroupMemberInfo | TA.SetGroupName | TA.LeaveGroup
+export type GroupActions = ActionsDetail.GetGroupInfo | ActionsDetail.GetGroupList | ActionsDetail.GetGroupMemberInfo | ActionsDetail.SetGroupName | ActionsDetail.LeaveGroup
 
-export type GuildActions = TA.GetGuildInfo | TA.GetGuildList | TA.GetGuildInfo | TA.GetGuildMemberInfo | TA.GetGuildMemberList | TA.LeaveGuild | TA.GetChannelInfo | TA.GetChannelList | TA.SetChannelName | TA.GetChannelMemberInfo | TA.GetChannelMemberList | TA.LeaveChannel
+export type GuildActions = ActionsDetail.GetGuildInfo | ActionsDetail.GetGuildList | ActionsDetail.GetGuildInfo | ActionsDetail.GetGuildMemberInfo | ActionsDetail.GetGuildMemberList | ActionsDetail.LeaveGuild | ActionsDetail.GetChannelInfo | ActionsDetail.GetChannelList | ActionsDetail.SetChannelName | ActionsDetail.GetChannelMemberInfo | ActionsDetail.GetChannelMemberList | ActionsDetail.LeaveChannel
 
-export type FileActions = TA.UploadFile | TA.UploadFileFragmentedPrepare | TA.UploadFileFragmentedTransfer | TA.UploadFileFragmentedFinish | TA.GetFile | TA.GetFileFragmentedPrepare | TA.GetFileFragmentedTransfer
+export type FileActions = ActionsDetail.UploadFile | ActionsDetail.UploadFileFragmentedPrepare | ActionsDetail.UploadFileFragmentedTransfer | ActionsDetail.UploadFileFragmentedFinish | ActionsDetail.GetFile | ActionsDetail.GetFileFragmentedPrepare | ActionsDetail.GetFileFragmentedTransfer
 
 export type AllActions = MetaActions | MessageActions | UserActions | GroupActions | GuildActions
+
+export { ActionsDetail }
