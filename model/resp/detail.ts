@@ -3,7 +3,7 @@ import { Status } from '../types.ts'
 
 interface Resp {
     /** 执行状态（成功与否），必须是 `ok`、`failed` 中的一个，分别表示执行成功和失败 */
-    status: string
+    status: 'ok' | 'failed'
     /** 返回码，必须符合 OneBot 12 文档所定义的返回码规则 */
     retcode: number
     /** 响应数据 */
