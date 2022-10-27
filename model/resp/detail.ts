@@ -317,7 +317,7 @@ export interface GetFile extends Resp {
         /** 文件数据，当 `type` 为 `data` 时必须返回 */
         data?: ArrayBuffer | string
         /** 文件数据（原始二进制）的 SHA256 校验和，全小写，可选返回 */
-        sha256: string
+        sha256?: string
     }
 }
 

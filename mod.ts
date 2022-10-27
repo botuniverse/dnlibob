@@ -15,12 +15,14 @@ export interface OneBotConfig {
     wsr?: WebSocketServerConfig[]
 }
 
+export type ActionHandler<A, R> = (data: A, send_msgpack: boolean) => Promise<R>
+
 export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends AllActions = AllActions> {
     private obcs: (WebSocketClient<R, E, A> | WebSocketServer<R, E, A>)[] = []
     private abort_controller: AbortController | undefined
     private logger: Logger = new Logger('dnlibob')
 
-    constructor(private action_hanler: (data: A) => Promise<R>) {
+    constructor(private action_hanler: ActionHandler<A, R>) {
     }
     public start(config: OneBotConfig) {
         this.logger.info(`${config.basic.impl}正在启动中`)

@@ -1,5 +1,5 @@
 import { msgpack, serve } from '../deps.ts'
-import { OneBotConfig } from '../mod.ts'
+import { OneBotConfig, ActionHandler } from '../mod.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -12,7 +12,7 @@ export class WebSocketClient<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private handler: (data: A) => Promise<R>) {
+    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private handler: ActionHandler<A, R>) {
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -22,9 +22,13 @@ export class WebSocketClient<R, E, A> {
             }, reconnect_interval)
         })
         this.ws.addEventListener('message', async (e) => {
-            const data = typeof e.data === 'string' ? JSON.parse(e.data) : msgpack.decode(e.data)
-            const resp = await this.handler(data)
-            this.send(resp)
+            if (typeof e.data === 'string') {
+                const resp = await this.handler(JSON.parse(e.data), this.config.send_msgpack)
+                this.send(resp, this.config.send_msgpack)
+            } else {
+                const resp = await this.handler(msgpack.decode(e.data)!, true)
+                this.send(resp, true)
+            }
         })
     }
     public start(signal: AbortSignal): void {
@@ -40,9 +44,9 @@ export class WebSocketClient<R, E, A> {
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: R | E): void {
+    public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
-            if (this.config.send_msgpack) {
+            if (send_msgpack) {
                 this.ws.send(msgpack.encode(data))
             } else {
                 this.ws.send(JSON.stringify(data))
@@ -62,7 +66,7 @@ export class WebSocketServer<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private handler: (data: A) => Promise<R>) {
+    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private handler: ActionHandler<A, R>) {
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'
@@ -79,9 +83,13 @@ export class WebSocketServer<R, E, A> {
             socket.addEventListener('open', () => {
                 this.ws = socket
                 this.ws.addEventListener('message', async (e) => {
-                    const data = typeof e.data === 'string' ? JSON.parse(e.data) : msgpack.decode(e.data)
-                    const resp = await this.handler(data)
-                    this.send(resp)
+                    if (typeof e.data === 'string') {
+                        const resp = await this.handler(JSON.parse(e.data), this.config.send_msgpack)
+                        this.send(resp, this.config.send_msgpack)
+                    } else {
+                        const resp = await this.handler(msgpack.decode(e.data)!, true)
+                        this.send(resp, true)
+                    }
                 })
             })
             return response
@@ -91,9 +99,9 @@ export class WebSocketServer<R, E, A> {
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: R | E): void {
+    public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
-            if (this.config.send_msgpack) {
+            if (send_msgpack) {
                 this.ws.send(msgpack.encode(data))
             } else {
                 this.ws.send(JSON.stringify(data))

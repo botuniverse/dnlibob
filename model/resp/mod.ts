@@ -12,6 +12,6 @@ export type GuildResps = RespsDetail.GetGuildInfo | RespsDetail.GetGuildList | R
 
 export type FileResps = RespsDetail.UploadFile | RespsDetail.UploadFileFragmentedPrepare | RespsDetail.UploadFileFragmentedTransfer | RespsDetail.UploadFileFragmentedFinish | RespsDetail.GetFile | RespsDetail.GetFileFragmentedPrepare | RespsDetail.GetFileFragmentedTransfer
 
-export type AllResps = MetaResps | MessageResps | UserResps | GroupResps | GuildResps
+export type AllResps = MetaResps | MessageResps | UserResps | GroupResps | GuildResps | FileResps
 
 export { RespsDetail }

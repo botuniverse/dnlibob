@@ -14,6 +14,6 @@ export type GuildActions = ActionsDetail.GetGuildInfo | ActionsDetail.GetGuildLi
 
 export type FileActions = ActionsDetail.UploadFile | ActionsDetail.UploadFileFragmentedPrepare | ActionsDetail.UploadFileFragmentedTransfer | ActionsDetail.UploadFileFragmentedFinish | ActionsDetail.GetFile | ActionsDetail.GetFileFragmentedPrepare | ActionsDetail.GetFileFragmentedTransfer
 
-export type AllActions<MS extends MessageSegmentsDetail.MessageSegment = MessageSegments> = MetaActions | MessageActions<MS> | UserActions | GroupActions | GuildActions
+export type AllActions<MS extends MessageSegmentsDetail.MessageSegment = MessageSegments> = MetaActions | MessageActions<MS> | UserActions | GroupActions | GuildActions | FileActions
 
 export { ActionsDetail }
