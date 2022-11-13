@@ -1,6 +1,6 @@
 export * from './model/mod.ts'
 
-import { AllResps, AllEvents, AllActions } from './model/mod.ts'
+import { AllResps, AllEvents, Action } from './model/mod.ts'
 import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig } from './obc/mod.ts'
 import { Logger } from './deps.ts'
 
@@ -17,7 +17,7 @@ export interface OneBotConfig {
 
 export type ActionHandler<A, R> = (data: A, send_msgpack: boolean) => Promise<R>
 
-export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends AllActions = AllActions> {
+export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends Action = Action> {
     private obcs: (WebSocketClient<R, E, A> | WebSocketServer<R, E, A>)[] = []
     private abort_controller: AbortController | undefined
     private logger: Logger = new Logger('dnlibob')

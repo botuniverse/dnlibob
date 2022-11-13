@@ -1,5 +1,5 @@
 import { Self } from '../types.ts'
-import { Message, MessageSegmentsDetail } from '../message/mod.ts'
+import { Message } from '../message/mod.ts'
 
 interface Action {
     /** 动作名称，如 `send_message` */
@@ -44,7 +44,7 @@ export interface GetVersion extends Action {
 }
 
 /** 发送消息 */
-export interface SendMessage<MS extends MessageSegmentsDetail.MessageSegment> extends Action {
+export interface SendMessage extends Action {
     action: 'send_message'
     params: {
         /** 发送的类型，可以为 `private`、`group`、`channel` 或扩展的类型，和**消息事件**的 `detail_type` 字段对应 */
@@ -58,7 +58,7 @@ export interface SendMessage<MS extends MessageSegmentsDetail.MessageSegment> ex
         /** 频道 ID，当 `detail_type` 为 `channel` 时必须传入 */
         channel_id?: string
         /** 消息内容 */
-        message: Message<MS>
+        message: Message
     }
 }
 
