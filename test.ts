@@ -9,14 +9,14 @@ const ob = new OneBot(async (_action) => {
         message: ''
     }
     return resp
-})
+}, () => { })
 
 ob.start({
     basic: {
-        onebot_version: 12,
+        onebot_version: '12',
         impl: 'test'
     },
-    wsr: [{
+    ws: [{
         host: '127.0.0.1',
         port: 9322,
         send_msgpack: false

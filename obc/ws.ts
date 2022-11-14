@@ -12,7 +12,7 @@ export class WebSocketClient<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private handler: ActionHandler<A, R>) {
+    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -21,12 +21,15 @@ export class WebSocketClient<R, E, A> {
                 this.status !== 'shutdown' && this.connect(url, reconnect_interval)
             }, reconnect_interval)
         })
+        this.ws.addEventListener('open', () => {
+            this.connect_handler()
+        })
         this.ws.addEventListener('message', async (e) => {
             if (typeof e.data === 'string') {
-                const resp = await this.handler(JSON.parse(e.data), this.config.send_msgpack)
+                const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
                 this.send(resp, this.config.send_msgpack)
             } else {
-                const resp = await this.handler(msgpack.decode(e.data)!, true)
+                const resp = await this.action_handler(msgpack.decode(e.data)!, true)
                 this.send(resp, true)
             }
         })
@@ -66,7 +69,7 @@ export class WebSocketServer<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private handler: ActionHandler<A, R>) {
+    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'
@@ -84,13 +87,14 @@ export class WebSocketServer<R, E, A> {
                 this.ws = socket
                 this.ws.addEventListener('message', async (e) => {
                     if (typeof e.data === 'string') {
-                        const resp = await this.handler(JSON.parse(e.data), this.config.send_msgpack)
+                        const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
                         this.send(resp, this.config.send_msgpack)
                     } else {
-                        const resp = await this.handler(msgpack.decode(e.data)!, true)
+                        const resp = await this.action_handler(msgpack.decode(e.data)!, true)
                         this.send(resp, true)
                     }
                 })
+                this.connect_handler()
             })
             return response
         }, { hostname: this.config.host, port: this.config.port, signal: signal })
