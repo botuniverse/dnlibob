@@ -11,8 +11,8 @@ export interface OneBotConfig {
         onebot_version: 12
         impl: string
     }
-    ws?: WebSocketClientConfig[]
-    wsr?: WebSocketServerConfig[]
+    ws?: WebSocketServerConfig[]
+    wsr?: WebSocketClientConfig[]
 }
 
 export type ActionHandler<A, R> = (data: A, send_msgpack: boolean) => Promise<R>
@@ -29,14 +29,14 @@ export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEven
         this.abort_controller = new AbortController()
         if (config.ws) {
             for (const item of config.ws) {
-                const obc = new WebSocketClient({ ...config.basic, ...item }, this.action_hanler)
+                const obc = new WebSocketServer({ ...config.basic, ...item }, this.action_hanler)
                 obc.start(this.abort_controller.signal)
                 this.obcs.push(obc)
             }
         }
         if (config.wsr) {
             for (const item of config.wsr) {
-                const obc = new WebSocketServer({ ...config.basic, ...item }, this.action_hanler)
+                const obc = new WebSocketClient({ ...config.basic, ...item }, this.action_hanler)
                 obc.start(this.abort_controller.signal)
                 this.obcs.push(obc)
             }
