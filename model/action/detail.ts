@@ -328,8 +328,6 @@ export interface UploadFileFragmentedTransfer extends Action {
         file_id: string
         /** 本次传输的文件偏移，单位：字节 */
         offset: number
-        /** 本次传输的文件大小，单位：字节 */
-        size: number
         /** 本次传输的文件数据 */
         data: ArrayBuffer | string
     }

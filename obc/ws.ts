@@ -1,4 +1,4 @@
-import { msgpack, serve } from '../deps.ts'
+import { unpack, pack, serve } from '../deps.ts'
 import { OneBotConfig, ActionHandler } from '../mod.ts'
 
 export interface WebSocketClientConfig {
@@ -29,7 +29,7 @@ export class WebSocketClient<R, E, A> {
                 const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
                 this.send(resp, this.config.send_msgpack)
             } else {
-                const resp = await this.action_handler(msgpack.decode(e.data)!, true)
+                const resp = await this.action_handler(unpack(e.data)!, true)
                 this.send(resp, true)
             }
         })
@@ -50,7 +50,7 @@ export class WebSocketClient<R, E, A> {
     public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
             if (send_msgpack) {
-                this.ws.send(msgpack.encode(data))
+                this.ws.send(pack(data))
             } else {
                 this.ws.send(JSON.stringify(data))
             }
@@ -90,7 +90,7 @@ export class WebSocketServer<R, E, A> {
                         const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
                         this.send(resp, this.config.send_msgpack)
                     } else {
-                        const resp = await this.action_handler(msgpack.decode(e.data)!, true)
+                        const resp = await this.action_handler(unpack(e.data)!, true)
                         this.send(resp, true)
                     }
                 })
@@ -106,7 +106,7 @@ export class WebSocketServer<R, E, A> {
     public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
         if (this.status === 'started' && this.ws && this.ws.readyState === this.ws.OPEN) {
             if (send_msgpack) {
-                this.ws.send(msgpack.encode(data))
+                this.ws.send(pack(data))
             } else {
                 this.ws.send(JSON.stringify(data))
             }
