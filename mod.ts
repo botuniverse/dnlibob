@@ -1,12 +1,12 @@
 export * from './model/mod.ts'
 
 import { AllResps, AllEvents, Action } from './model/mod.ts'
-import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig } from './obc/mod.ts'
+import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig, ActionHandler } from './obc/mod.ts'
 import { Logger } from './deps.ts'
 
 export { Logger }
 
-export interface OneBotConfig {
+export interface AppConfig {
     basic: {
         onebot_version: string
         impl: string
@@ -15,17 +15,15 @@ export interface OneBotConfig {
     wsr?: WebSocketClientConfig[]
 }
 
-export type ActionHandler<A, R> = (data: A, send_msgpack: boolean) => Promise<R>
-
-export class OneBot<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends Action = Action> {
+export class App<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends Action = Action> {
     private obcs: (WebSocketClient<R, E, A> | WebSocketServer<R, E, A>)[] = []
     private abort_controller: AbortController | undefined
     private logger: Logger = new Logger('dnlibob')
 
     constructor(private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
     }
-    public start(config: OneBotConfig) {
-        this.logger.info(`${config.basic.impl}正在启动中`)
+    public start(config: AppConfig) {
+        this.logger.info(`${config.basic.impl} 的 OneBot Connect 服务启动中`)
         this.abort_controller = new AbortController()
         if (config.ws) {
             for (const item of config.ws) {

@@ -1,5 +1,6 @@
 import { unpack, pack, serve } from '../deps.ts'
-import { OneBotConfig, ActionHandler } from '../mod.ts'
+import { AppConfig } from '../mod.ts'
+import { ActionHandler } from './mod.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -12,7 +13,7 @@ export class WebSocketClient<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketClientConfig & OneBotConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
+    constructor(private config: WebSocketClientConfig & AppConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -69,7 +70,7 @@ export class WebSocketServer<R, E, A> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketServerConfig & OneBotConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
+    constructor(private config: WebSocketServerConfig & AppConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'
@@ -79,8 +80,9 @@ export class WebSocketServer<R, E, A> {
         serve((req) => {
             let response, socket: WebSocket
             try {
-                ({ response, socket } = Deno.upgradeWebSocket(req));
+                ({ response, socket } = Deno.upgradeWebSocket(req))
             } catch {
+                //console.log(e)
                 return new Response("request isn't trying to upgrade to websocket.")
             }
             socket.addEventListener('open', () => {
