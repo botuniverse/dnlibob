@@ -1,7 +1,7 @@
 export * from './model/mod.ts'
 
 import { AllResps, AllEvents, Action } from './model/mod.ts'
-import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig, ActionHandler } from './obc/mod.ts'
+import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig, ActionHandler, Connect } from './obc/mod.ts'
 import { Logger } from './deps.ts'
 
 export { Logger }
@@ -16,7 +16,7 @@ export interface AppConfig {
 }
 
 export class App<R extends AllResps = AllResps, E extends AllEvents = AllEvents, A extends Action = Action> {
-    private obcs: (WebSocketClient<R, E, A> | WebSocketServer<R, E, A>)[] = []
+    private obcs: Connect<R, E, A>[] = []
     private abort_controller: AbortController | undefined
     private logger: Logger = new Logger('dnlibob')
 

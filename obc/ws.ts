@@ -1,6 +1,6 @@
 import { unpack, pack, serve } from '../deps.ts'
 import { AppConfig } from '../mod.ts'
-import { ActionHandler } from './mod.ts'
+import { ActionHandler, Connect } from './mod.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -9,11 +9,12 @@ export interface WebSocketClientConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketClient<R, E, A> {
+export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientConfig & AppConfig['basic']> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketClientConfig & AppConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
+    constructor(config: WebSocketClientConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connect_handler: () => void) {
+        super(config, action_handler, connect_handler)
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -66,11 +67,12 @@ export interface WebSocketServerConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketServer<R, E, A> {
+export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerConfig & AppConfig['basic']>  {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
 
-    constructor(private config: WebSocketServerConfig & AppConfig['basic'], private action_handler: ActionHandler<A, R>, private connect_handler: () => void) {
+    constructor(config: WebSocketServerConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connect_handler: () => void) {
+        super(config, action_handler, connect_handler)
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'
