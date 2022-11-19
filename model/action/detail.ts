@@ -1,4 +1,4 @@
-import { Self } from '../types.ts'
+import { Self } from '../share.ts'
 import { Message } from '../message/mod.ts'
 
 interface Action {

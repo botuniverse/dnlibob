@@ -1,15 +1,16 @@
-export interface MessageSegment {
+// deno-lint-ignore-file no-empty-interface
+interface MessageSegment {
     type: string
-    data: unknown
+    data: Record<never, never>
 }
 
 /** 纯文本 */
 export interface Text extends MessageSegment {
     type: 'text'
-    data: TextData
+    data: _TextData
 }
 
-export interface TextData {
+export interface _TextData {
     /** 纯文本内容 */
     text: string
 }
@@ -17,10 +18,10 @@ export interface TextData {
 /** 提及（即 @） */
 export interface Mention extends MessageSegment {
     type: 'mention'
-    data: MentionData
+    data: _MentionData
 }
 
-export interface MentionData {
+export interface _MentionData {
     /** 提及的用户 ID */
     user_id: string
 }
@@ -28,16 +29,19 @@ export interface MentionData {
 /** 提及所有人 */
 export interface MentionAll extends MessageSegment {
     type: 'mention_all'
-    data: Record<never, never>
+    data: _MentionAllData
+}
+
+export interface _MentionAllData {
 }
 
 /** 图片 */
 export interface Image extends MessageSegment {
     type: 'image'
-    data: ImageData
+    data: _ImageData
 }
 
-export interface ImageData {
+export interface _ImageData {
     /** 图片文件 ID */
     file_id: string
 }
@@ -45,10 +49,10 @@ export interface ImageData {
 /** 语音 */
 export interface Voice extends MessageSegment {
     type: 'voice'
-    data: VoiceData
+    data: _VoiceData
 }
 
-export interface VoiceData {
+export interface _VoiceData {
     /** 语音文件 ID */
     file_id: string
 }
@@ -56,10 +60,10 @@ export interface VoiceData {
 /** 音频 */
 export interface Audio extends MessageSegment {
     type: 'audio'
-    data: AudioData
+    data: _AudioData
 }
 
-export interface AudioData {
+export interface _AudioData {
     /** 音频文件 ID */
     file_id: string
 }
@@ -67,10 +71,10 @@ export interface AudioData {
 /** 视频 */
 export interface Video extends MessageSegment {
     type: 'video'
-    data: VideoData
+    data: _VideoData
 }
 
-export interface VideoData {
+export interface _VideoData {
     /** 视频文件 ID */
     file_id: string
 }
@@ -78,10 +82,10 @@ export interface VideoData {
 /** 文件 */
 export interface File extends MessageSegment {
     type: 'file'
-    data: FileData
+    data: _FileData
 }
 
-export interface FileData {
+export interface _FileData {
     /** 文件 ID */
     file_id: string
 }
@@ -89,10 +93,10 @@ export interface FileData {
 /** 位置 */
 export interface Location extends MessageSegment {
     type: 'location'
-    data: LocationData
+    data: _LocationData
 }
 
-export interface LocationData {
+export interface _LocationData {
     /** 纬度 */
     latitude: number
     /** 经度 */
@@ -106,10 +110,10 @@ export interface LocationData {
 /** 回复 */
 export interface Reply extends MessageSegment {
     type: 'reply'
-    data: ReplyData
+    data: _ReplyData
 }
 
-export interface ReplyData {
+export interface _ReplyData {
     /** 回复的消息 ID */
     message_id: string
     /** 回复的消息发送者 ID，发送时可以不传入 */

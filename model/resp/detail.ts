@@ -1,5 +1,5 @@
-import { AllEvents } from '../event/mod.ts'
-import { Status } from '../types.ts'
+import { Event } from '../mod.ts'
+import { Status } from '../share.ts'
 
 interface Resp {
     /** 执行状态（成功与否），必须是 `ok`、`failed` 中的一个，分别表示执行成功和失败 */
@@ -18,7 +18,7 @@ interface Resp {
  * - 仅 HTTP 通信方式必须支持，用于轮询获取事件。
 */
 export interface GetLatestEvents extends Resp {
-    data: AllEvents[]
+    data: Event[]
 }
 
 /** 获取支持的动作列表 */

@@ -13,7 +13,7 @@
 ### Basic usage
 
 ```ts
-import * as Dnlibob from "https://deno.land/x/dnlibob@0.11.1/mod.ts";
+import * as Dnlibob from "https://deno.land/x/dnlibob@0.12.0/mod.ts";
 
 const ob = new App((data) => {
   switch (data.action) {

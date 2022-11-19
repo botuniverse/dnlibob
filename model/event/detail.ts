@@ -1,5 +1,5 @@
 import { Message } from '../message/mod.ts'
-import { Self } from '../types.ts'
+import { Self } from '../share.ts'
 
 interface Event {
     /** 事件唯一标识符 */

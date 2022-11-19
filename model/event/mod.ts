@@ -1,19 +1,25 @@
-import * as EventsDetail from './detail.ts'
+import * as EventDetail from './detail.ts'
+export { EventDetail }
 
-export type MetaEvents = EventsDetail.Heartbeat | EventsDetail.StatusUpdate
+export interface EventMap {
+    'meta.heartbeat': EventDetail.Heartbeat
+    'meta.status_update': EventDetail.StatusUpdate
+    'message.private': EventDetail.Private
+    'message.group': EventDetail.Group
+    'message.channel': EventDetail.Channel
+    'notice.friend_increase': EventDetail.FriendIncrease
+    'notice.friend_decrease': EventDetail.FriendDecrease
+    'notice.private_message_delete': EventDetail.PrivateMessageDelete
+    'notice.group_member_increase': EventDetail.GroupMemberIncrease
+    'notice.group_member_decrease': EventDetail.GroupMemberDecrease
+    'notice.group_message_delete': EventDetail.GroupMessageDelete
+    'notice.guild_member_increase': EventDetail.GuildMemberIncrease
+    'notice.guild_member_decrease': EventDetail.GuildMemberDecrease
+    'notice.channel_member_increase': EventDetail.ChannelMemberIncrease
+    'notice.channel_member_decrease': EventDetail.ChannelMemberDecrease
+    'notice.channel_message_delete': EventDetail.ChannelMessageDelete
+    'notice.channel_create': EventDetail.ChannelCreate
+    'notice.channel_delete': EventDetail.ChannelDelete
+}
 
-export type UserMessageEvents = EventsDetail.Private
-
-export type GroupMessageEvents = EventsDetail.Group
-
-export type GuildMessageEvents = EventsDetail.Channel
-
-export type UserNoticeEvents = EventsDetail.FriendIncrease | EventsDetail.FriendDecrease | EventsDetail.PrivateMessageDelete
-
-export type GroupNoticeEvents = EventsDetail.GroupMemberIncrease | EventsDetail.GroupMemberDecrease | EventsDetail.GroupMessageDelete
-
-export type GuildNoticeEvents = EventsDetail.GuildMemberIncrease | EventsDetail.GuildMemberDecrease | EventsDetail.ChannelMemberIncrease | EventsDetail.ChannelMemberDecrease | EventsDetail.ChannelMessageDelete | EventsDetail.ChannelCreate | EventsDetail.ChannelDelete
-
-export type AllEvents = MetaEvents | UserMessageEvents | GroupMessageEvents | GuildMessageEvents | UserNoticeEvents | GroupNoticeEvents | GuildNoticeEvents
-
-export { EventsDetail }
+export type Event<K extends keyof EventMap = keyof EventMap> = EventMap[K]

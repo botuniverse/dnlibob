@@ -1,18 +1,18 @@
-import * as MessageSegmentsDetail from './detail.ts'
+import * as MessageSegmentDetail from './detail.ts'
 
-export { MessageSegmentsDetail }
+export { MessageSegmentDetail }
 
 export interface MessageSegmentMap {
-    text: MessageSegmentsDetail.Text
-    mention: MessageSegmentsDetail.Mention
-    mention_all: MessageSegmentsDetail.MentionAll
-    image: MessageSegmentsDetail.Image
-    voice: MessageSegmentsDetail.Voice
-    audio: MessageSegmentsDetail.Audio
-    video: MessageSegmentsDetail.Video
-    file: MessageSegmentsDetail.File
-    location: MessageSegmentsDetail.Location
-    reply: MessageSegmentsDetail.Reply
+    text: MessageSegmentDetail.Text
+    mention: MessageSegmentDetail.Mention
+    mention_all: MessageSegmentDetail.MentionAll
+    image: MessageSegmentDetail.Image
+    voice: MessageSegmentDetail.Voice
+    audio: MessageSegmentDetail.Audio
+    video: MessageSegmentDetail.Video
+    file: MessageSegmentDetail.File
+    location: MessageSegmentDetail.Location
+    reply: MessageSegmentDetail.Reply
 }
 
 export type Message<K extends keyof MessageSegmentMap = keyof MessageSegmentMap> = MessageSegmentMap[K][]
