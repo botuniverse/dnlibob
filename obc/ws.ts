@@ -34,7 +34,9 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
         })
         this.ws.addEventListener('open', async () => {
             const data = await this.connected_handler()
-            this.wsSend(this.ws!, data)
+            for (const event of data) {
+                this.wsSend(this.ws!, event)
+            }
             this.can_send = true
         })
         this.ws.addEventListener('message', async (e) => {
@@ -115,7 +117,9 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
             this.id++
             socket.addEventListener('open', async () => {
                 const data = await this.connected_handler()
-                this.wsSend(socket, data)
+                for (const event of data) {
+                    this.wsSend(socket, event)
+                }
                 this.connections.set(id, { ws: socket, can_send: true })
             })
             socket.addEventListener('message', async (e) => {

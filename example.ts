@@ -23,7 +23,7 @@ ob.start({
         send_msgpack: false
     }]
 }, () => {
-    return {
+    return [{
         "id": "b6e65187-5ac0-489c-b431-53078e9d2bbb",
         "time": 1632847927.599013,
         "type": "meta",
@@ -34,7 +34,26 @@ ob.start({
             "version": "1.2.0",
             "onebot_version": "12"
         }
+    }, {
+        "id": "b6e65187-5ac0-489c-b431-53078e9d2bbb",
+        "time": 1632847927.599013,
+        "type": "meta",
+        "detail_type": "status_update",
+        "sub_type": "",
+        "status": {
+            "good": true,
+            "bots": [
+                {
+                    "self": {
+                        "platform": "telegram",
+                        "user_id": "2345678"
+                    },
+                    "online": true
+                }
+            ]
+        }
     }
+    ]
 })
 
 setInterval(() => {

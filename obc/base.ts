@@ -10,4 +10,4 @@ export abstract class Connect<R, E, A, C extends AppConfig['basic'] = AppConfig[
     abstract send(data: R | E, send_msgpack?: boolean): void
 }
 
-export type ConnectedHandler<E> = () => Promise<E> | E
+export type ConnectedHandler<E> = () => Promise<E[]> | E[]
