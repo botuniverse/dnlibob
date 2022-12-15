@@ -1,5 +1,5 @@
 import { Event } from '../mod.ts'
-import { Status } from '../share.ts'
+import { Self } from '../share.ts'
 
 interface Resp {
     /** 执行状态（成功与否），必须是 `ok`、`failed` 中的一个，分别表示执行成功和失败 */
@@ -28,7 +28,17 @@ export interface GetSupportedActions extends Resp {
 
 /** 获取运行状态 */
 export interface GetStatus extends Resp {
-    data: Status
+    data: {
+        /** 是否各项状态都符合预期，OneBot 实现各模块均正常 */
+        good: boolean
+        /** 当前 OneBot Connect 连接上所有机器人账号的状态列表 */
+        bots: {
+            /** 机器人自身标识 */
+            online: boolean
+            /** 机器人账号是否在线（可收发消息等） */
+            self: Self
+        }[]
+    }
 }
 
 /** 获取版本信息 */

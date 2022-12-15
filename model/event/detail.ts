@@ -1,3 +1,4 @@
+import { Resp } from '../resp/mod.ts'
 import { Message } from '../message/mod.ts'
 import { Self } from '../share.ts'
 
@@ -38,6 +39,16 @@ interface NoticeEvent extends Event {
     self?: Self
 }
 
+/** 连接
+ * - 对于正向 WebSocket 和反向 WebSocket 通信方式，OneBot 实现应在连接建立后立即产生一个连接事件，以向应用端推送当前实现端的相关版本信息。连接事件必须是一次成功的正向或反向 WebSocket 连接上传输的第一个事件。
+ * - HTTP 和 HTTP Webhook 通信方式不需要产生连接事件。
+ */
+export interface Connect extends MetaEvent {
+    detail_type: 'connect'
+    /** OneBot 实现端版本信息，与 `get_version` 动作响应数据一致 */
+    version: Resp<'get_version'>['data']
+}
+
 /** 心跳 */
 export interface Heartbeat extends MetaEvent {
     detail_type: 'heartbeat'
@@ -52,23 +63,8 @@ export interface Heartbeat extends MetaEvent {
  */
 export interface StatusUpdate extends MetaEvent {
     detail_type: 'status_update'
-    /** OneBot 状态，与 `get_status` 动作响应数据一致 */
-    status: {
-        /** 是否各项状态都符合预期，OneBot 实现各模块均正常 */
-        good: boolean
-        /** 当前 OneBot Connect 连接上所有机器人账号的状态列表 */
-        bots: {
-            /** 机器人自身标识 */
-            self: {
-                /** 机器人用户 ID */
-                user_id: string
-                /** 机器人平台名称 */
-                platform: string
-            }
-            /** 机器人账号是否在线（可收发消息等） */
-            online: boolean
-        }[]
-    }
+    /** OneBot 实现端状态信息，与 `get_status` 动作响应数据一致 */
+    status: Resp<'get_status'>['data']
 }
 
 /** 私聊消息 */

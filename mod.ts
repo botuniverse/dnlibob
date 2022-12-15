@@ -1,8 +1,9 @@
 export * from './model/mod.ts'
 
 import { Resp, Event, Action } from './model/mod.ts'
-import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig, ActionHandler, Connect } from './obc/mod.ts'
+import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig } from './obc/mod.ts'
 import { Logger } from './deps.ts'
+import { ActionHandler, Connect } from './obc/base.ts'
 
 export { Logger }
 

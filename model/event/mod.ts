@@ -2,6 +2,7 @@ import * as EventDetail from './detail.ts'
 export { EventDetail }
 
 export interface EventMap {
+    'meta.connect': EventDetail.Connect
     'meta.heartbeat': EventDetail.Heartbeat
     'meta.status_update': EventDetail.StatusUpdate
     'message.private': EventDetail.Private

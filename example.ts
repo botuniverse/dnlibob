@@ -23,3 +23,14 @@ ob.start({
         send_msgpack: false
     }]
 })
+
+setInterval(() => {
+    ob.send({
+        "id": "0",
+        "time": 0,
+        "type": "meta",
+        "detail_type": "heartbeat",
+        "sub_type": "",
+        "interval": 2000
+    })
+}, 2000)
