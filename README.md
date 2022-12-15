@@ -13,7 +13,7 @@
 ### Basic usage
 
 ```ts
-import * as Dnlibob from "https://deno.land/x/dnlibob@0.13.0/mod.ts";
+import * as Dnlibob from "https://deno.land/x/dnlibob@0.14.0/mod.ts";
 
 const ob = new App((data) => {
   switch (data.action) {
@@ -25,7 +25,7 @@ const ob = new App((data) => {
         message: "",
       };
   }
-}, () => {});
+});
 
 ob.start({
   basic: {
@@ -37,5 +37,18 @@ ob.start({
     port: 9322,
     send_msgpack: false,
   }],
+}, () => {
+  return {
+    "id": "b6e65187-5ac0-489c-b431-53078e9d2bbb",
+    "time": 1632847927.599013,
+    "type": "meta",
+    "detail_type": "connect",
+    "sub_type": "",
+    "version": {
+      "impl": "go-onebot-qq",
+      "version": "1.2.0",
+      "onebot_version": "12",
+    },
+  };
 });
 ```

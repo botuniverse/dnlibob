@@ -1,6 +1,6 @@
 import { unpack, pack, serve } from '../deps.ts'
 import { AppConfig } from '../mod.ts'
-import { ActionHandler, Connect } from './base.ts'
+import { ActionHandler, Connect, ConnectedHandler } from './base.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -14,8 +14,15 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
     public status: 'started' | 'shutdown' = 'shutdown'
     private can_send = false
 
-    constructor(config: WebSocketClientConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connect_handler: () => void) {
-        super(config, action_handler, connect_handler)
+    constructor(config: WebSocketClientConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
+        super(config, action_handler, connected_handler)
+    }
+    private wsSend(ws: WebSocket, data: R | E, send_msgpack = this.config.send_msgpack) {
+        if (send_msgpack) {
+            ws.send(pack(data))
+        } else {
+            ws.send(JSON.stringify(data))
+        }
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
@@ -25,14 +32,15 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
                 this.status !== 'shutdown' && this.connect(url, reconnect_interval)
             }, reconnect_interval)
         })
-        this.ws.addEventListener('open', () => {
-            this.connect_handler()
+        this.ws.addEventListener('open', async () => {
+            const data = await this.connected_handler()
+            this.wsSend(this.ws!, data)
             this.can_send = true
         })
         this.ws.addEventListener('message', async (e) => {
             if (typeof e.data === 'string') {
                 const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
-                this.send(resp, this.config.send_msgpack)
+                this.send(resp)
             } else {
                 const resp = await this.action_handler(unpack(e.data)!, true)
                 this.send(resp, true)
@@ -52,13 +60,9 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
+    public send(data: R | E, send_msgpack?: boolean): void {
         if (this.status === 'started' && this.can_send) {
-            if (send_msgpack) {
-                this.ws!.send(pack(data))
-            } else {
-                this.ws!.send(JSON.stringify(data))
-            }
+            this.wsSend(this.ws!, data, send_msgpack)
         }
     }
 }
@@ -70,13 +74,28 @@ export interface WebSocketServerConfig {
     send_msgpack: boolean
 }
 
+interface WSSConnectionsValue {
+    ws: WebSocket
+    can_send: boolean
+}
+
 export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerConfig & AppConfig['basic']>  {
     public status: 'started' | 'shutdown' = 'shutdown'
-    private connections: Map<number, { ws: WebSocket, can_send: boolean }> = new Map()
+    private connections: Map<number, WSSConnectionsValue> = new Map()
     private id = 0
 
-    constructor(config: WebSocketServerConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connect_handler: () => void) {
-        super(config, action_handler, connect_handler)
+    constructor(config: WebSocketServerConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
+        super(config, action_handler, connected_handler)
+    }
+    private wsSend<S, D extends S extends true ? ArrayBuffer | string : R | E>(ws: WebSocket, data: D, serialization?: S) {
+        if (serialization) {
+            ws.send(data as ArrayBuffer | string)
+        } else {
+            ws.send(this.serialize(data as R | E, this.config.send_msgpack))
+        }
+    }
+    private serialize(data: R | E, send_msgpack: boolean): ArrayBuffer | string {
+        return send_msgpack ? pack(data) : JSON.stringify(data)
     }
     public start(signal: AbortSignal): void {
         this.status = 'started'
@@ -94,14 +113,15 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
             const id = this.id
             this.connections.set(id, { ws: socket, can_send: false })
             this.id++
-            socket.addEventListener('open', () => {
-                this.connect_handler()
+            socket.addEventListener('open', async () => {
+                const data = await this.connected_handler()
+                this.wsSend(socket, data)
                 this.connections.set(id, { ws: socket, can_send: true })
             })
             socket.addEventListener('message', async (e) => {
                 if (typeof e.data === 'string') {
                     const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
-                    this.send(resp, this.config.send_msgpack)
+                    this.send(resp)
                 } else {
                     const resp = await this.action_handler(unpack(e.data)!, true)
                     this.send(resp, true)
@@ -119,12 +139,12 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
             ws.close()
         }
     }
-    public send(data: R | E, send_msgpack: boolean = this.config.send_msgpack): void {
+    public send(data: R | E, send_msgpack = this.config.send_msgpack): void {
         if (this.status === 'started') {
-            const serialize = send_msgpack ? pack(data) : JSON.stringify(data)
+            const serialization = this.serialize(data, send_msgpack)
             for (const [, { ws, can_send }] of this.connections) {
                 if (!can_send) continue
-                ws.send(serialize)
+                this.wsSend(ws, serialization, true)
             }
         }
     }
