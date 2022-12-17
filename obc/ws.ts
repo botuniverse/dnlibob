@@ -26,6 +26,7 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
     }
     private connect(url: string, reconnect_interval: number) {
         this.ws = new WebSocket(url, `${this.config.onebot_version}.${this.config.impl}`)
+        this.ws.binaryType = 'arraybuffer'
         this.ws.addEventListener('close', () => {
             this.can_send = false
             setTimeout(() => {
@@ -39,13 +40,13 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
             }
             this.can_send = true
         })
-        this.ws.addEventListener('message', async (e) => {
-            if (typeof e.data === 'string') {
-                const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
-                this.send(resp)
-            } else {
-                const resp = await this.action_handler(unpack(e.data)!, true)
+        this.ws.addEventListener('message', async ({ data }) => {
+            if (data instanceof ArrayBuffer) {
+                const resp = await this.action_handler(unpack(new Uint8Array(data)), true)
                 this.send(resp, true)
+            } else {
+                const resp = await this.action_handler(JSON.parse(data), this.config.send_msgpack)
+                this.send(resp)
             }
         })
     }
@@ -112,6 +113,7 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
                 //console.log(e)
                 return new Response("request isn't trying to upgrade to websocket.")
             }
+            socket.binaryType = 'arraybuffer'
             const id = this.id
             this.connections.set(id, { ws: socket, can_send: false })
             this.id++
@@ -122,13 +124,13 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
                 }
                 this.connections.set(id, { ws: socket, can_send: true })
             })
-            socket.addEventListener('message', async (e) => {
-                if (typeof e.data === 'string') {
-                    const resp = await this.action_handler(JSON.parse(e.data), this.config.send_msgpack)
-                    this.send(resp)
-                } else {
-                    const resp = await this.action_handler(unpack(e.data)!, true)
+            socket.addEventListener('message', async ({ data }) => {
+                if (data instanceof ArrayBuffer) {
+                    const resp = await this.action_handler(unpack(new Uint8Array(data)), true)
                     this.send(resp, true)
+                } else {
+                    const resp = await this.action_handler(JSON.parse(data), this.config.send_msgpack)
+                    this.send(resp)
                 }
             })
             socket.addEventListener('close', () => {
