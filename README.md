@@ -13,7 +13,7 @@
 ### Basic usage
 
 ```ts
-import * as Dnlibob from "https://deno.land/x/dnlibob@0.15.2/mod.ts";
+import * as Dnlibob from "https://deno.land/x/dnlibob@0.16.0/mod.ts";
 
 const ob = new App((data) => {
   switch (data.action) {
@@ -31,6 +31,8 @@ ob.start({
   basic: {
     onebot_version: "12",
     impl: "test",
+    platform: "test",
+    user_id: "89564",
   },
   ws: [{
     host: "127.0.0.1",

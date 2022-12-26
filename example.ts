@@ -15,7 +15,9 @@ const ob = new App((data) => {
 ob.start({
     basic: {
         onebot_version: '12',
-        impl: 'test'
+        impl: 'test',
+        platform: 'test',
+        user_id: '89564'
     },
     ws: [{
         host: '127.0.0.1',
