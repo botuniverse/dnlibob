@@ -10,6 +10,8 @@
 
 ## Examples
 
+Deno 0.19.1 or higher is required.
+
 ### Basic usage
 
 ```ts
