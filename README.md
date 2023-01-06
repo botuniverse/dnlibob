@@ -10,7 +10,7 @@
 
 ## Examples
 
-Deno 0.19.1 or higher is required.
+[Deno](https://github.com/denoland/deno) 1.29.1 or higher is required.
 
 ### Basic usage
 
