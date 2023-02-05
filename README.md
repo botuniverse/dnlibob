@@ -10,9 +10,11 @@
 
 ## Examples
 
-[Deno](https://github.com/denoland/deno) 1.29.1 or higher is required.
+[Deno](https://github.com/denoland/deno) 1.30.2 or higher is required.
 
 ### Basic usage
+
+此章节待更新。
 
 ```ts
 import * as Dnlibob from "https://deno.land/x/dnlibob@0.16.1/mod.ts";

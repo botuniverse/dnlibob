@@ -16,3 +16,10 @@ export interface MessageSegmentMap {
 }
 
 export type Message<K extends keyof MessageSegmentMap = keyof MessageSegmentMap> = MessageSegmentMap[K][]
+
+export interface MessageSegmentBase {
+    /** 消息段名称 */
+    type: string
+    /** 消息段参数 */
+    data: Record<string, unknown>
+}

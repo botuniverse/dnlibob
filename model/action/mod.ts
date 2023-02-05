@@ -1,4 +1,5 @@
 import * as ActionDetail from './detail.ts'
+import { Self } from '../share.ts'
 
 export { ActionDetail }
 
@@ -37,3 +38,14 @@ export interface ActionMap {
 }
 
 export type Action<K extends keyof ActionMap = keyof ActionMap> = ActionMap[K]
+
+export interface ActionBase {
+    /** 动作名称，如 `send_message` */
+    action: string
+    /** 动作参数 */
+    params: Record<string, unknown>
+    /** 可以用于唯一标识一个动作请求 */
+    echo?: string
+    /** 机器人自身标识 */
+    self?: Self
+}

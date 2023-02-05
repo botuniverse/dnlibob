@@ -1,6 +1,5 @@
 import { unpack, pack, serve } from '../deps.ts'
-import { AppConfig } from '../mod.ts'
-import { ActionHandler, Connect, ConnectedHandler } from './base.ts'
+import { ActionHandler, Connect, ConnectedHandler, ExtraConnectConfig } from './share.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -9,12 +8,12 @@ export interface WebSocketClientConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientConfig & AppConfig['basic']> {
+export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientConfig & ExtraConnectConfig> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
     private can_send = false
 
-    constructor(config: WebSocketClientConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
+    constructor(config: WebSocketClientConfig & ExtraConnectConfig, action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
         super(config, action_handler, connected_handler)
     }
     private wsSend(ws: WebSocket, data: R | E, send_msgpack = this.config.send_msgpack) {
@@ -82,12 +81,12 @@ interface WSSConnectionsValue {
     can_send: boolean
 }
 
-export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerConfig & AppConfig['basic']>  {
+export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerConfig>  {
     public status: 'started' | 'shutdown' = 'shutdown'
     private connections: Map<number, WSSConnectionsValue> = new Map()
     private id = 0
 
-    constructor(config: WebSocketServerConfig & AppConfig['basic'], action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
+    constructor(config: WebSocketServerConfig, action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
         super(config, action_handler, connected_handler)
     }
     private wsSend<S, D extends S extends true ? ArrayBuffer | string : R | E>(ws: WebSocket, data: D, serialization?: S) {

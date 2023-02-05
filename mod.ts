@@ -3,11 +3,11 @@ export * from './model/mod.ts'
 import { Resp, Event, Action } from './model/mod.ts'
 import { WebSocketClient, WebSocketClientConfig, WebSocketServer, WebSocketServerConfig } from './obc/mod.ts'
 import { Logger } from './deps.ts'
-import { ActionHandler, Connect, ConnectedHandler } from './obc/base.ts'
+import { ActionHandler, Connect, ConnectedHandler } from './obc/share.ts'
 
 export { Logger }
 
-export interface AppConfig {
+export interface AppConfig<R extends Resp = Resp, E extends Event = Event, A extends Action = Action> {
     basic: {
         onebot_version: string
         impl: string
@@ -16,38 +16,46 @@ export interface AppConfig {
     }
     ws?: WebSocketServerConfig[]
     wsr?: WebSocketClientConfig[]
+    action_handler: ActionHandler<A, R>
+    connected_handler: ConnectedHandler<E>
 }
 
 export class App<R extends Resp = Resp, E extends Event = Event, A extends Action = Action> {
-    private obcs: Connect<R, E, A>[] = []
+    private obcs: Connect<R, E, A, unknown>[] = []
     private abort_controller: AbortController | undefined
-    private logger: Logger | undefined
-    public info: AppConfig['basic'] | undefined
+    public logger: Logger
+    private platform: string
+    private user_id: string
 
-    constructor(private action_handler: ActionHandler<A, R>) {
+    constructor(private config: AppConfig<R, E, A>) {
+        this.platform = config.basic.platform
+        this.user_id = config.basic.user_id
+        this.logger = new Logger(`${this.platform}:${this.user_id}`)
     }
-    public start(config: AppConfig, connected_handler: ConnectedHandler<E>) {
-        this.info = config.basic
-        this.logger = new Logger(`${this.info.platform}:${this.info.user_id}`)
+    public start(): void {
         this.logger.info(`OneBot Connect 服务启动中`)
         this.abort_controller = new AbortController()
-        if (config.ws) {
-            for (const item of config.ws) {
-                const obc = new WebSocketServer({ ...config.basic, ...item }, this.action_handler, connected_handler)
+        if (this.config.ws) {
+            for (const item of this.config.ws) {
+                const obc = new WebSocketServer(item, this.config.action_handler, this.config.connected_handler)
                 obc.start(this.abort_controller.signal)
                 this.obcs.push(obc)
             }
         }
-        if (config.wsr) {
-            for (const item of config.wsr) {
-                const obc = new WebSocketClient({ ...config.basic, ...item }, this.action_handler, connected_handler)
+        if (this.config.wsr) {
+            for (const item of this.config.wsr) {
+                const obc = new WebSocketClient({
+                    onebot_version: this.config.basic.onebot_version,
+                    impl: this.config.basic.impl,
+                    ...item
+                }, this.config.action_handler, this.config.connected_handler)
                 obc.start(this.abort_controller.signal)
                 this.obcs.push(obc)
             }
         }
     }
-    public shutdown() {
-        this.logger!.info(`正在尝试关闭所有连接`)
+    public shutdown(): void {
+        this.logger.info(`正在尝试关闭所有连接`)
         this.abort_controller && this.abort_controller.abort()
         this.obcs = []
     }
@@ -55,5 +63,9 @@ export class App<R extends Resp = Resp, E extends Event = Event, A extends Actio
         for (const obc of this.obcs) {
             obc.send(data)
         }
+    }
+    public changeUserID(id: string): void {
+        this.user_id = id
+        this.logger = new Logger(`${this.platform}:${this.user_id}`)
     }
 }

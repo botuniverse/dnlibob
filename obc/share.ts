@@ -1,8 +1,6 @@
-import { AppConfig } from '../mod.ts'
-
 export type ActionHandler<A, R> = (data: A, send_msgpack: boolean) => Promise<R> | R
 
-export abstract class Connect<R, E, A, C extends AppConfig['basic'] = AppConfig['basic']>{
+export abstract class Connect<R, E, A, C>{
     abstract status: 'started' | 'shutdown'
     constructor(protected readonly config: C, protected readonly action_handler: ActionHandler<A, R>, protected readonly connected_handler: ConnectedHandler<E>) { }
     abstract start(signal: AbortSignal): void
@@ -11,3 +9,8 @@ export abstract class Connect<R, E, A, C extends AppConfig['basic'] = AppConfig[
 }
 
 export type ConnectedHandler<E> = () => Promise<E[]> | E[]
+
+export interface ExtraConnectConfig {
+    onebot_version: string
+    impl: string
+}

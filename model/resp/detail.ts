@@ -1,356 +1,196 @@
 import { Event } from '../mod.ts'
-import { Self } from '../share.ts'
+import * as _Data from './param.ts'
+import { ExtendedMap } from '../share.ts'
+import { RespBase } from './mod.ts'
 
-interface Resp {
-    /** 执行状态（成功与否），必须是 `ok`、`failed` 中的一个，分别表示执行成功和失败 */
-    status: 'ok' | 'failed'
-    /** 返回码，必须符合 OneBot 12 文档所定义的返回码规则 */
-    retcode: number
-    /** 响应数据 */
-    data: unknown
-    /** 错误信息，当动作执行失败时，建议在此填写人类可读的错误信息，当执行成功时，应为空字符串 */
-    message: string
-    /** 应原样返回动作请求中的 `echo` 字段值 */
-    echo?: string
-}
+export { _Data }
 
 /** 获取最新事件列表
  * - 仅 HTTP 通信方式必须支持，用于轮询获取事件。
 */
-export interface GetLatestEvents extends Resp {
+export interface GetLatestEvents extends RespBase {
     data: Event[]
 }
 
 /** 获取支持的动作列表 */
-export interface GetSupportedActions extends Resp {
+export interface GetSupportedActions extends RespBase {
     data: string[]
 }
 
 /** 获取运行状态 */
-export interface GetStatus extends Resp {
-    data: {
-        /** 是否各项状态都符合预期，OneBot 实现各模块均正常 */
-        good: boolean
-        /** 当前 OneBot Connect 连接上所有机器人账号的状态列表 */
-        bots: {
-            /** 机器人自身标识 */
-            online: boolean
-            /** 机器人账号是否在线（可收发消息等） */
-            self: Self
-        }[]
-    }
+export interface GetStatus extends RespBase {
+    data: _Data.GetStatus & ExtendedMap
 }
 
 /** 获取版本信息 */
-export interface GetVersion extends Resp {
-    data: {
-        /** OneBot 实现名称 */
-        impl: string
-        /** OneBot 实现的版本号 */
-        version: string
-        /** OneBot 实现的 OneBot 标准版本号 */
-        onebot_version: string
-    }
+export interface GetVersion extends RespBase {
+    data: _Data.GetVersion & ExtendedMap
 }
 
 /** 发送消息 */
-export interface SendMessage extends Resp {
-    data: {
-        /** 消息 ID */
-        message_id: string
-        /** 消息成功发出的时间（Unix 时间戳），单位：秒 */
-        time: number
-    }
+export interface SendMessage extends RespBase {
+    data: _Data.SendMessage & ExtendedMap
 }
 
 /** 撤回消息 */
-export interface DeleteMessage extends Resp {
-    data: null
+export interface DeleteMessage extends RespBase {
+    data: null | (_Data.DeleteMessage & ExtendedMap)
 }
 
 /** 获取机器人自身信息 */
-export interface GetSelfInfo extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的显示名称，若无则为空字符串 */
-        user_displayname: string
-    }
+export interface GetSelfInfo extends RespBase {
+    data: _Data.GetSelfInfo & ExtendedMap
 }
 
 /** 获取用户信息 */
-export interface GetUserInfo extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的显示名称，若无则为空字符串 */
-        user_displayname: string
-        /** 机器人账号对该用户的备注名称，若无则为空字符串 */
-        user_remark: string
-    }
+export interface GetUserInfo extends RespBase {
+    data: _Data.GetUserInfo & ExtendedMap
 }
 
 /** 获取好友列表
  * - 获取机器人的关注者或好友列表
 */
-export interface GetFriendList extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的显示名称，若无则为空字符串 */
-        user_displayname: string
-        /** 机器人账号对该用户的备注名称，若无则为空字符串 */
-        user_remark: string
-    }[]
+export interface GetFriendList extends RespBase {
+    data: GetUserInfo['data'][]
 }
 
 /** 获取群信息 */
-export interface GetGroupInfo extends Resp {
-    data: {
-        /** 群 ID */
-        group_id: string
-        /** 群名称 */
-        group_name: string
-    }
+export interface GetGroupInfo extends RespBase {
+    data: _Data.GetGroupInfo & ExtendedMap
 }
 
 /** 获取群列表
  * - 获取机器人加入的群列表
 */
-export interface GetGroupList extends Resp {
-    data: {
-        /** 群 ID */
-        group_id: string
-        /** 群名称 */
-        group_name: string
-    }[]
+export interface GetGroupList extends RespBase {
+    data: GetGroupInfo['data'][]
 }
 
 /** 获取群成员信息 */
-export interface GetGroupMemberInfo extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的群内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }
+export interface GetGroupMemberInfo extends RespBase {
+    data: _Data.GetGroupMemberInfo & ExtendedMap
 }
 
 /** 获取群成员列表 */
-export interface GetGroupMemberList extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的群内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }[]
+export interface GetGroupMemberList extends RespBase {
+    data: GetGroupMemberInfo['data'][]
 }
 
 /** 设置群名称 */
-export interface SetGroupName extends Resp {
-    data: null
+export interface SetGroupName extends RespBase {
+    data: null | (_Data.SetGroupName & ExtendedMap)
 }
 
 /** 退出群 */
-export interface LeaveGroup extends Resp {
-    data: null
+export interface LeaveGroup extends RespBase {
+    data: null | (_Data.LeaveGroup & ExtendedMap)
 }
 
 /** 获取群组信息 */
-export interface GetGuildInfo extends Resp {
-    data: {
-        /** 群组 ID */
-        guild_id: string
-        /** 群组名称 */
-        guild_name: string
-    }
+export interface GetGuildInfo extends RespBase {
+    data: _Data.GetGuildInfo & ExtendedMap
 }
 
 /** 获取群组列表
  * - 获取机器人加入的群组列表
 */
-export interface GetGuildList extends Resp {
-    data: {
-        /** 群组 ID */
-        guild_id: string
-        /** 群组名称 */
-        guild_name: string
-    }[]
+export interface GetGuildList extends RespBase {
+    data: GetGuildInfo['data'][]
 }
 
 /** 设置群组名称 */
-export interface SetGuildName extends Resp {
-    data: null
+export interface SetGuildName extends RespBase {
+    data: null | (_Data.SetGuildName & ExtendedMap)
 }
 
 /** 获取群组成员信息 */
-export interface GetGuildMemberInfo extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的群内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }
+export interface GetGuildMemberInfo extends RespBase {
+    data: _Data.GetGuildMemberInfo & ExtendedMap
 }
 
 /** 获取群组成员列表 */
-export interface GetGuildMemberList extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的群组内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }[]
+export interface GetGuildMemberList extends RespBase {
+    data: GetGuildMemberInfo['data'][]
 }
 
 /** 退出群组 */
-export interface LeaveGuild extends Resp {
-    data: null
+export interface LeaveGuild extends RespBase {
+    data: null | (_Data.LeaveGuild & ExtendedMap)
 }
 
 /** 获取频道信息 */
-export interface GetChannelInfo extends Resp {
-    data: {
-        /** 频道 ID */
-        channel_id: string
-        /** 频道名称 */
-        channel_name: string
-    }
+export interface GetChannelInfo extends RespBase {
+    data: _Data.GetChannelInfo & ExtendedMap
 }
 
 /** 获取频道列表
  * - 获取指定群组中机器人可见的频道列表
 */
-export interface GetChannelList extends Resp {
-    data: {
-        /** 频道 ID */
-        channel_id: string
-        /** 频道名称 */
-        channel_name: string
-    }[]
+export interface GetChannelList extends RespBase {
+    data: GetChannelInfo['data'][]
 }
 
 /** 设置频道名称 */
-export interface SetChannelName extends Resp {
-    data: null
+export interface SetChannelName extends RespBase {
+    data: null | (_Data.SetChannelName & ExtendedMap)
 }
 
 /** 获取频道成员信息 */
-export interface GetChannelMemberInfo extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的频道内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }
+export interface GetChannelMemberInfo extends RespBase {
+    data: _Data.GetChannelMemberInfo & ExtendedMap
 }
 
 /** 获取频道成员列表 */
-export interface GetChannelMemberList extends Resp {
-    data: {
-        /** 用户 ID */
-        user_id: string
-        /** 用户名称/姓名/昵称 */
-        user_name: string
-        /** 用户设置的频道内显示名称或账号显示名称，若无则为空字符串 */
-        user_displayname: string
-    }[]
+export interface GetChannelMemberList extends RespBase {
+    data: GetChannelMemberInfo['data'][]
 }
 
 /** 退出频道 */
-export interface LeaveChannel extends Resp {
-    data: null
+export interface LeaveChannel extends RespBase {
+    data: null | (_Data.LeaveChannel & ExtendedMap)
 }
 
 /** 上传文件 */
-export interface UploadFile extends Resp {
-    data: {
-        /** 文件 ID，可供以后使用 */
-        file_id: string
-    }
+export interface UploadFile extends RespBase {
+    data: _Data.UploadFile & ExtendedMap
 }
 
 /** 分片上传文件
  *  - 准备阶段
  */
-export interface UploadFileFragmentedPrepare extends Resp {
-    data: {
-        /** 文件 ID，仅传输阶段使用 */
-        file_id: string
-    }
+export interface UploadFileFragmentedPrepare extends RespBase {
+    data: _Data.UploadFileFragmentedPrepare & ExtendedMap
 }
 
 /** 分片上传文件
  *  - 传输阶段
  */
-export interface UploadFileFragmentedTransfer extends Resp {
-    data: null
+export interface UploadFileFragmentedTransfer extends RespBase {
+    data: null | (_Data.UploadFileFragmentedTransfer & ExtendedMap)
 }
 
 /** 分片上传文件
  *  - 结束阶段
  */
-export interface UploadFileFragmentedFinish extends Resp {
-    data: {
-        /** 文件 ID，可供以后使用 */
-        file_id: string
-    }
+export interface UploadFileFragmentedFinish extends RespBase {
+    data: _Data.UploadFileFragmentedFinish & ExtendedMap
 }
 
 /** 获取文件 */
-export interface GetFile extends Resp {
-    data: {
-        /** 文件名，如 `foo.jpg` */
-        name: string
-        /** 文件 URL，当 `type` 为 `url` 时必须返回，应用端必须能以 HTTP(S) 协议从此 URL 下载文件 */
-        url?: string
-        /** 下载 URL 时需要添加的 HTTP 请求头，可选返回 */
-        headers?: Record<string, string>
-        /** 文件路径，当 `type` 为 `path` 时必须返回，应用端必须能从此路径访问文件 */
-        path?: string
-        /** 文件数据，当 `type` 为 `data` 时必须返回 */
-        data?: ArrayBuffer | string
-        /** 文件数据（原始二进制）的 SHA256 校验和，全小写，可选返回 */
-        sha256?: string
-    }
+export interface GetFile extends RespBase {
+    data: _Data.GetFile & ExtendedMap
 }
 
 /** 分片获取文件
  * - 准备阶段
  */
-export interface GetFileFragmentedPrepare extends Resp {
-    data: {
-        /** 文件名，如 `foo.jpg` */
-        name: string
-        /** 文件完整大小，单位：字节 */
-        total_size: number
-        /** 整个文件的 SHA256 校验和，全小写 */
-        sha256: string
-    }
+export interface GetFileFragmentedPrepare extends RespBase {
+    data: _Data.GetFileFragmentedPrepare & ExtendedMap
 }
 
 /** 分片获取文件
  * - 传输阶段
  */
-export interface GetFileFragmentedTransfer extends Resp {
-    data: {
-        /** 本次传输的文件数据 */
-        data: ArrayBuffer | string
-    }
+export interface GetFileFragmentedTransfer extends RespBase {
+    data: _Data.GetFileFragmentedTransfer & ExtendedMap
 }

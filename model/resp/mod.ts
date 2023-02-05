@@ -37,3 +37,16 @@ export interface RespMap {
 }
 
 export type Resp<K extends keyof RespMap = keyof RespMap> = RespMap[K]
+
+export interface RespBase {
+    /** 执行状态（成功与否），必须是 `ok`、`failed` 中的一个，分别表示执行成功和失败 */
+    status: 'ok' | 'failed'
+    /** 返回码，必须符合 OneBot 12 文档所定义的返回码规则 */
+    retcode: number
+    /** 响应数据 */
+    data: unknown
+    /** 错误信息，当动作执行失败时，建议在此填写人类可读的错误信息，当执行成功时，应为空字符串 */
+    message: string
+    /** 应原样返回动作请求中的 `echo` 字段值 */
+    echo?: string
+}

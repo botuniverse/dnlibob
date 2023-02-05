@@ -1,6 +1,8 @@
 import { App } from './mod.ts'
 
-const ob = new App((data) => {
+// 待更新
+
+/*const ob = new App((data) => {
     switch (data.action) {
         default:
             return {
@@ -67,4 +69,4 @@ setInterval(() => {
         "sub_type": "",
         "interval": 2000
     })
-}, 2000)
+}, 2000)*/
