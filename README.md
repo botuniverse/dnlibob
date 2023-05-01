@@ -15,7 +15,7 @@
 ### Basic usage
 
 ```ts
-import { App } from 'https://deno.land/x/dnlibob@0.18.0/mod.ts'
+import { App } from 'https://deno.land/x/dnlibob@0.18.1/mod.ts'
 
 const ob = new App({
     info: {
