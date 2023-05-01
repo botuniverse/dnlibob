@@ -1,5 +1,6 @@
 import { unpack, pack, serve } from '../deps.ts'
-import { ActionHandler, Connect, ConnectedHandler, ExtraConnectConfig } from './share.ts'
+import { ActionHandler, Connect, ConnectOptional } from './share.ts'
+import { AppConfig } from '../mod.ts'
 
 export interface WebSocketClientConfig {
     url: string
@@ -8,13 +9,15 @@ export interface WebSocketClientConfig {
     send_msgpack: boolean
 }
 
-export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientConfig & ExtraConnectConfig> {
+export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientConfig & AppConfig['info']> {
     private ws: WebSocket | undefined
     public status: 'started' | 'shutdown' = 'shutdown'
     private can_send = false
+    private id
 
-    constructor(config: WebSocketClientConfig & ExtraConnectConfig, action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
-        super(config, action_handler, connected_handler)
+    constructor(config: WebSocketClientConfig & AppConfig['info'], action_handler: ActionHandler<A, R>, optional: ConnectOptional) {
+        super(config, action_handler, optional)
+        this.id = optional.id
     }
     private wsSend(ws: WebSocket, data: R | E, send_msgpack = this.config.send_msgpack) {
         if (send_msgpack) {
@@ -32,17 +35,14 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
                 this.status !== 'shutdown' && this.connect(url, reconnect_interval)
             }, reconnect_interval)
         })
-        this.ws.addEventListener('open', async () => {
-            const data = await this.connected_handler()
-            for (const event of data) {
-                this.wsSend(this.ws!, event)
-            }
+        this.ws.addEventListener('open', () => {
+            this.optional?.connected_handler && this.optional.connected_handler(this.id)
             this.can_send = true
         })
         this.ws.addEventListener('message', async ({ data }) => {
             if (data instanceof ArrayBuffer) {
                 const resp = await this.action_handler(unpack(new Uint8Array(data)), true)
-                this.send(resp, true)
+                this.send(resp, { send_msgpack: true })
             } else {
                 const resp = await this.action_handler(JSON.parse(data), this.config.send_msgpack)
                 this.send(resp)
@@ -62,9 +62,10 @@ export class WebSocketClient<R, E, A> extends Connect<R, E, A, WebSocketClientCo
         this.status = 'shutdown'
         this.ws && this.ws.close()
     }
-    public send(data: R | E, send_msgpack?: boolean): void {
-        if (this.status === 'started' && this.can_send) {
-            this.wsSend(this.ws!, data, send_msgpack)
+    public send(data: R | E, optional?: SendOptional): void {
+        if (this.status === 'started') {
+            if (!this.can_send && typeof optional?.cid === 'undefined') return
+            this.wsSend(this.ws!, data, optional?.send_msgpack)
         }
     }
 }
@@ -83,11 +84,13 @@ interface WSSConnectionsValue {
 
 export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerConfig>  {
     public status: 'started' | 'shutdown' = 'shutdown'
-    private connections: Map<number, WSSConnectionsValue> = new Map()
-    private id = 0
+    private connections: Map<string, WSSConnectionsValue> = new Map()
+    private id: string
+    private sub_id_total = 0
 
-    constructor(config: WebSocketServerConfig, action_handler: ActionHandler<A, R>, connected_handler: ConnectedHandler<E>) {
-        super(config, action_handler, connected_handler)
+    constructor(config: WebSocketServerConfig, action_handler: ActionHandler<A, R>, optional: ConnectOptional) {
+        super(config, action_handler, optional)
+        this.id = optional.id
     }
     private wsSend<S, D extends S extends true ? ArrayBuffer | string : R | E>(ws: WebSocket, data: D, serialization?: S) {
         if (serialization) {
@@ -113,27 +116,24 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
                 return new Response("request isn't trying to upgrade to websocket.")
             }
             socket.binaryType = 'arraybuffer'
-            const id = this.id
-            this.connections.set(id, { ws: socket, can_send: false })
-            this.id++
-            socket.addEventListener('open', async () => {
-                const data = await this.connected_handler()
-                for (const event of data) {
-                    this.wsSend(socket, event)
-                }
-                this.connections.set(id, { ws: socket, can_send: true })
+            this.sub_id_total++
+            const sid = this.sub_id_total.toString()
+            this.connections.set(sid, { ws: socket, can_send: false })
+            socket.addEventListener('open', () => {
+                this.optional?.connected_handler && this.optional.connected_handler(`${this.id}:${sid}`)
+                this.connections.set(sid, { ws: socket, can_send: true })
             })
             socket.addEventListener('message', async ({ data }) => {
                 if (data instanceof ArrayBuffer) {
                     const resp = await this.action_handler(unpack(new Uint8Array(data)), true)
-                    this.send(resp, true)
+                    this.send(resp, { send_msgpack: true })
                 } else {
                     const resp = await this.action_handler(JSON.parse(data), this.config.send_msgpack)
                     this.send(resp)
                 }
             })
             socket.addEventListener('close', () => {
-                this.connections.delete(id)
+                this.connections.delete(sid)
             })
             return response
         }, { hostname: this.config.host, port: this.config.port, signal: signal })
@@ -144,13 +144,30 @@ export class WebSocketServer<R, E, A> extends Connect<R, E, A, WebSocketServerCo
             ws.close()
         }
     }
-    public send(data: R | E, send_msgpack = this.config.send_msgpack): void {
+    public send(data: R | E, optional?: SendOptional): void {
         if (this.status === 'started') {
+            let send_msgpack = optional?.send_msgpack
+            if (typeof send_msgpack === 'undefined') {
+                send_msgpack = this.config.send_msgpack
+            }
             const serialization = this.serialize(data, send_msgpack)
+            if (optional?.cid) {
+                const ids = optional?.cid.split(':')
+                if (ids.length > 1){
+                    const { ws } = this.connections.get(ids[1])!
+                    this.wsSend(ws, serialization, true)
+                    return
+                }
+            }
             for (const [, { ws, can_send }] of this.connections) {
                 if (!can_send) continue
                 this.wsSend(ws, serialization, true)
             }
         }
     }
+}
+
+interface SendOptional {
+    send_msgpack?: boolean
+    cid?: string
 }
