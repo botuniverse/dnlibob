@@ -1,33 +1,33 @@
-import * as EventDetail from './detail.ts'
-import { Self, ExtendedMap } from '../share.ts'
+import * as EventsDetail from './detail.ts'
+import { Self } from '../share.ts'
 
-export { EventDetail }
+export { EventsDetail }
 
-export interface EventMap {
-    'meta.connect': EventDetail.Connect
-    'meta.heartbeat': EventDetail.Heartbeat
-    'meta.status_update': EventDetail.StatusUpdate
-    'message.private': EventDetail.Private
-    'message.group': EventDetail.Group
-    'message.channel': EventDetail.Channel
-    'notice.friend_increase': EventDetail.FriendIncrease
-    'notice.friend_decrease': EventDetail.FriendDecrease
-    'notice.private_message_delete': EventDetail.PrivateMessageDelete
-    'notice.group_member_increase': EventDetail.GroupMemberIncrease
-    'notice.group_member_decrease': EventDetail.GroupMemberDecrease
-    'notice.group_message_delete': EventDetail.GroupMessageDelete
-    'notice.guild_member_increase': EventDetail.GuildMemberIncrease
-    'notice.guild_member_decrease': EventDetail.GuildMemberDecrease
-    'notice.channel_member_increase': EventDetail.ChannelMemberIncrease
-    'notice.channel_member_decrease': EventDetail.ChannelMemberDecrease
-    'notice.channel_message_delete': EventDetail.ChannelMessageDelete
-    'notice.channel_create': EventDetail.ChannelCreate
-    'notice.channel_delete': EventDetail.ChannelDelete
+export interface EventsMap {
+    'meta.connect': EventsDetail.Connect
+    'meta.heartbeat': EventsDetail.Heartbeat
+    'meta.status_update': EventsDetail.StatusUpdate
+    'message.private': EventsDetail.Private
+    'message.group': EventsDetail.Group
+    'message.channel': EventsDetail.Channel
+    'notice.friend_increase': EventsDetail.FriendIncrease
+    'notice.friend_decrease': EventsDetail.FriendDecrease
+    'notice.private_message_delete': EventsDetail.PrivateMessageDelete
+    'notice.group_member_increase': EventsDetail.GroupMemberIncrease
+    'notice.group_member_decrease': EventsDetail.GroupMemberDecrease
+    'notice.group_message_delete': EventsDetail.GroupMessageDelete
+    'notice.guild_member_increase': EventsDetail.GuildMemberIncrease
+    'notice.guild_member_decrease': EventsDetail.GuildMemberDecrease
+    'notice.channel_member_increase': EventsDetail.ChannelMemberIncrease
+    'notice.channel_member_decrease': EventsDetail.ChannelMemberDecrease
+    'notice.channel_message_delete': EventsDetail.ChannelMessageDelete
+    'notice.channel_create': EventsDetail.ChannelCreate
+    'notice.channel_delete': EventsDetail.ChannelDelete
 }
 
-export type Event<K extends keyof EventMap = keyof EventMap> = EventMap[K]
+export type Events<K extends keyof EventsMap = keyof EventsMap> = EventsMap[K]
 
-export interface EventBase extends ExtendedMap {
+export interface EventBase {
     /** 事件唯一标识符 */
     id: string
     /** 事件发生时间（Unix 时间戳），单位：秒，建议优先采用聊天平台给出的时间，其次采用实现中创建事件对象的时间 */

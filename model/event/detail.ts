@@ -1,5 +1,5 @@
-import { Resp } from '../resp/mod.ts'
-import { Message } from '../message/mod.ts'
+import { Resps } from '../resp/mod.ts'
+import { Messages } from '../message/mod.ts'
 import { Self } from '../share.ts'
 import { EventBase } from './mod.ts'
 
@@ -10,7 +10,7 @@ interface MetaEvent extends EventBase {
 interface MessageEvent extends EventBase {
     type: 'message'
     /** 消息内容 */
-    message: Message
+    message: Messages
     /** 消息唯一 ID */
     message_id: string
     /** 消息内容的替代表示, 可以为空 */
@@ -32,7 +32,7 @@ interface NoticeEvent extends EventBase {
 export interface Connect extends MetaEvent {
     detail_type: 'connect'
     /** OneBot 实现端版本信息，与 `get_version` 动作响应数据一致 */
-    version: Resp<'get_version'>['data']
+    version: Resps<'get_version'>['data']
 }
 
 /** 心跳 */
@@ -50,7 +50,7 @@ export interface Heartbeat extends MetaEvent {
 export interface StatusUpdate extends MetaEvent {
     detail_type: 'status_update'
     /** OneBot 实现端状态信息，与 `get_status` 动作响应数据一致 */
-    status: Resp<'get_status'>['data']
+    status: Resps<'get_status'>['data']
 }
 
 /** 私聊消息 */

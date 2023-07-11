@@ -5,44 +5,41 @@
 [![License](https://img.shields.io/github/license/botuniverse/dnlibob)](https://github.com/botuniverse/dnlibob/blob/main/LICENSE)
 [![Deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https://deno.land/x/dnlibob/mod.ts)
 
-这是一个 LibOneBot，提供了 OneBot Connect 的实现和（OneBot
-的）事件、动作、消息段等数据模型的类型定义。该库处于未完成的状态，欢迎你与我们一同构建。
+这是一个 Deno 的 LibOneBot 库，提供了 OneBot Connect 的实现 OneBot 的事件、动作、消息段等数据模型的类型定义，可以帮助 OneBot 实现者快速在新的聊天机器人平台实现 OneBot 标准。
 
 ## Examples
 
-[Deno](https://github.com/denoland/deno) 1.33.1 or higher is required.
+[Deno](https://github.com/denoland/deno) 1.35.0 or higher is required.
 
 ### Basic usage
 
 ```ts
-import { App } from 'https://deno.land/x/dnlibob@0.18.1/mod.ts'
+import { App } from 'https://deno.land/x/dnlibob@0.19.0/mod.ts'
 
-const ob = new App({
+const app = new App({
     info: {
-        onebot_version: '12',
+        onebotVersion: '12',
         impl: 'test',
-        platform: 'test',
-        user_id: '8900'
+        platform: 'test'
     },
-    connect: {
-        websocket: [{
-            host: '127.0.0.1',
-            port: 9322,
-            send_msgpack: false
-        }]
-    },
-    action_handler: (data) => {
+    connect: [{
+        protocol: 'ws',
+        host: '127.0.0.1',
+        port: 9322,
+    }]
+    ,
+    actionHandler: (data) => {
         switch (data.action) {
             default:
                 return {
-                    status: "ok",
-                    retcode: 0,
-                    data: null,
-                    message: ''
+                    status: 'failed',
+                    retcode: 10002,
+                    data: {},
+                    message: '不支持的动作请求'
                 }
         }
     }
 })
 
-ob.start()
+app.start()
 ```

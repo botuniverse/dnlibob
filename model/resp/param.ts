@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-empty-interface
 import { Self } from '../share.ts'
 
 export interface GetStatus {
@@ -27,9 +26,6 @@ export interface SendMessage {
     message_id: string
     /** 消息成功发出的时间（Unix 时间戳），单位：秒 */
     time: number
-}
-
-export interface DeleteMessage {
 }
 
 export interface GetSelfInfo {
@@ -68,20 +64,11 @@ export interface GetGroupMemberInfo {
     user_displayname: string
 }
 
-export interface SetGroupName {
-}
-
-export interface LeaveGroup {
-}
-
 export interface GetGuildInfo {
     /** 群组 ID */
     guild_id: string
     /** 群组名称 */
     guild_name: string
-}
-
-export interface SetGuildName {
 }
 
 export interface GetGuildMemberInfo {
@@ -93,9 +80,6 @@ export interface GetGuildMemberInfo {
     user_displayname: string
 }
 
-export interface LeaveGuild {
-}
-
 export interface GetChannelInfo {
     data: {
         /** 频道 ID */
@@ -103,9 +87,6 @@ export interface GetChannelInfo {
         /** 频道名称 */
         channel_name: string
     }
-}
-
-export interface SetChannelName {
 }
 
 export interface GetChannelMemberInfo {
@@ -117,9 +98,6 @@ export interface GetChannelMemberInfo {
     user_displayname: string
 }
 
-export interface LeaveChannel {
-}
-
 export interface UploadFile {
     /** 文件 ID，可供以后使用 */
     file_id: string
@@ -128,9 +106,6 @@ export interface UploadFile {
 export interface UploadFileFragmentedPrepare {
     /** 文件 ID，仅传输阶段使用 */
     file_id: string
-}
-
-export interface UploadFileFragmentedTransfer {
 }
 
 export interface UploadFileFragmentedFinish {
