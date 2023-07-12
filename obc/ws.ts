@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { App } from '../mod.ts'
-import { RespBase, EventBase, ActionBase } from '../model/mod.ts'
+import { Events } from '../model/mod.ts'
 import { noEmptyStr } from '../utils.ts'
 
 export interface WebSocketClientConfig {
@@ -17,27 +17,99 @@ export interface WebSocketServerConfig {
     accessToken?: string
 }
 
-export class WebSocketClient<E extends EventBase, A extends ActionBase, R extends RespBase> {
+export class WebSocketClient {
     private socket?: WebSocket
-    constructor(private app: App<E, A, R>, private config: WebSocketClientConfig) {
-
+    constructor(private app: App, private config: WebSocketClientConfig) {
+    }
+    private encode(value: any) {
+        return JSON.stringify(value)
+    }
+    private decode(value: any) {
+        try {
+            return JSON.parse(value)
+        } catch (_e) {
+            return {}
+        }
+    }
+    private connect(url: string, interval: number) {
+        const socket = new WebSocket(url, `${this.app.info.onebotVersion}.${this.app.info.impl}`)
+        socket.onopen = async () => {
+            const connectedHandler = this.app.connectedHandler
+            if (connectedHandler) {
+                const events = await connectedHandler()
+                if (socket.readyState !== socket.OPEN) {
+                    return
+                }
+                for (const event of events) {
+                    socket.send(this.encode(event))
+                }
+            }
+            this.socket = socket
+        }
+        socket.onmessage = async (msg) => {
+            const data = this.decode(msg.data)
+            const actionHandler = this.app.actionHandler
+            if (actionHandler) {
+                let resp
+                if (!data.action) {
+                    resp = {
+                        'status': 'failed',
+                        'retcode': 10001,
+                        'data': null,
+                        'message': '无效的动作请求'
+                    }
+                } else {
+                    resp = await actionHandler(data)
+                }
+                if (noEmptyStr(data.echo)) {
+                    resp = {
+                        echo: data.echo,
+                        ...resp
+                    }
+                }
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(this.encode(resp))
+                }
+            }
+        }
+        socket.onclose = () => {
+            this.socket = undefined
+            setTimeout(() => {
+                this.connect(url, interval)
+            }, interval)
+        }
     }
     start(signal: AbortSignal) {
-
+        signal.addEventListener('abort', () => {
+            this.shutdown()
+        })
+        let suffix = ''
+        if (this.config.accessToken) {
+            suffix = this.config.accessToken
+        }
+        this.connect(`${this.config.url}${suffix}`, this.config.reconnectInterval)
     }
-    send(event: E) {
-
+    shutdown() {
+        if (this.socket !== undefined) {
+            this.socket.close()
+        }
+    }
+    send(event: Events) {
+        const socket = this.socket
+        if (socket !== undefined && socket.readyState === socket.OPEN) {
+            socket.send(this.encode(event))
+        }
     }
 }
 
-export class WebSocketServer<E extends EventBase, A extends ActionBase, R extends RespBase> {
+export class WebSocketServer {
     private connections: Map<number, WebSocket> = new Map()
-    constructor(private app: App<E, A, R>, private config: WebSocketServerConfig) {
+    constructor(private app: App, private config: WebSocketServerConfig) {
     }
-    encode(value: any) {
+    private encode(value: any) {
         return JSON.stringify(value)
     }
-    decode(value: any) {
+    private decode(value: any) {
         try {
             return JSON.parse(value)
         } catch (_e) {
@@ -54,10 +126,32 @@ export class WebSocketServer<E extends EventBase, A extends ActionBase, R extend
             hostname: this.config.host,
             signal
         }, (req) => {
-            const upgrade = req.headers.get("upgrade") || ""
-            if (upgrade.toLowerCase() != "websocket") {
+            const upgrade = req.headers.get('upgrade') || ''
+            if (upgrade.toLowerCase() != 'websocket') {
                 return new Response("request isn't trying to upgrade to websocket.")
             }
+
+            const localToken = this.config.accessToken
+            if (noEmptyStr(localToken)) {
+                let block = false
+                if (req.headers.has('authorization')) {
+                    const remote = `Bearer ${req.headers.get('authorization')}`
+                    const local = `Bearer ${localToken}`
+                    if (remote !== local) {
+                        block = true
+                    }
+                }
+                const params = new URL(req.url).searchParams
+                if (params.has('access_token') && params.get('access_token') !== localToken) {
+                    block = true
+                }
+                if (block) {
+                    return new Response("authentication failure.", {
+                        status: 401,
+                    })
+                }
+            }
+
             const { socket, response } = Deno.upgradeWebSocket(req)
             total++
             const id = total
@@ -105,6 +199,7 @@ export class WebSocketServer<E extends EventBase, A extends ActionBase, R extend
                     this.connections.delete(id)
                 }
             }
+
             return response
         })
     }
@@ -113,7 +208,7 @@ export class WebSocketServer<E extends EventBase, A extends ActionBase, R extend
             ws.close()
         })
     }
-    send(event: E) {
+    send(event: Events) {
         this.connections.forEach((ws) => {
             if (ws.readyState === ws.OPEN) {
                 ws.send(this.encode(event))

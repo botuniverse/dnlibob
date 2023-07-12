@@ -35,7 +35,7 @@ export interface RespsMap {
     upload_file_fragmented: RespsDetail.UploadFileFragmentedFinish | RespsDetail.UploadFileFragmentedPrepare | RespsDetail.UploadFileFragmentedTransfer
     get_file: RespsDetail.GetFile
     get_file_fragmented: RespsDetail.GetFileFragmentedPrepare | RespsDetail.GetFileFragmentedTransfer
-
+    failed: RespsDetail.Failed
 }
 
 export type Resps<K extends keyof RespsMap = keyof RespsMap> = RespsMap[K]

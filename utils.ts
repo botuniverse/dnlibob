@@ -5,3 +5,5 @@ export function noEmptyStr(value: any) {
     }
     return true
 }
+
+export type Awaitable<T> = [T] extends [Promise<unknown>] ? T : T | Promise<T>

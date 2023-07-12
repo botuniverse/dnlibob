@@ -192,3 +192,8 @@ export interface GetFileFragmentedPrepare extends RespBase {
 export interface GetFileFragmentedTransfer extends RespBase {
     data: _Data.GetFileFragmentedTransfer
 }
+
+export interface Failed extends RespBase {
+    status: 'failed'
+    data: null
+}

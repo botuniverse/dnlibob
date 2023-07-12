@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-empty-interface
-import { Message } from '../message/mod.ts'
+import { Messages } from '../message/mod.ts'
 
 export interface GetLatestEvents {
     /** 获取的事件数量上限，0 表示不限制 */
@@ -29,7 +29,7 @@ export interface SendMessage {
     /** 频道 ID，当 `detail_type` 为 `channel` 时必须传入 */
     channel_id?: string
     /** 消息内容 */
-    message: Message
+    message: Messages
 }
 
 export interface DeleteMessage {

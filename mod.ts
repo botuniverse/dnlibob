@@ -2,28 +2,29 @@ export * from './model/mod.ts'
 
 import { Logger } from './deps.ts'
 import { WebSocketClientConfig, WebSocketServerConfig, WebSocketClient, WebSocketServer } from './obc/mod.ts'
-import { RespBase, Resps, EventBase, Events, ActionBase, Actions } from './model/mod.ts'
+import { Resps, Events, Actions } from './model/mod.ts'
+import { Awaitable } from './utils.ts'
 
 export { Logger }
 
-export interface AppConfig<E extends EventBase, A extends ActionBase, R extends RespBase> {
+export interface AppConfig {
     info: {
         onebotVersion: string
         impl: string
         platform: string
     }
     connect: (WebSocketClientConfig | WebSocketServerConfig)[]
-    connectedHandler?: () => Promise<E[]> | E[]
-    actionHandler: (data: A) => Promise<R> | R
+    connectedHandler?: () => Awaitable<Events[]>
+    actionHandler: (data: Actions) => Awaitable<Resps>
 }
 
-export class App<E extends EventBase = Events, A extends ActionBase = Actions, R extends RespBase = Resps> {
+export class App {
     private controller?: AbortController
-    private obcs: Array<WebSocketClient<E, A, R> | WebSocketServer<E, A, R>> = []
-    public info: AppConfig<E, A, R>['info']
-    public connectedHandler?: AppConfig<E, A, R>['connectedHandler']
-    public actionHandler?: AppConfig<E, A, R>['actionHandler']
-    constructor(private config: AppConfig<E, A, R>) {
+    private obcs: Array<WebSocketClient | WebSocketServer> = []
+    public info: AppConfig['info']
+    public connectedHandler?: AppConfig['connectedHandler']
+    public actionHandler?: AppConfig['actionHandler']
+    constructor(private config: AppConfig) {
         this.info = config.info
         this.connectedHandler = config.connectedHandler
         this.actionHandler = config.actionHandler
@@ -53,8 +54,8 @@ export class App<E extends EventBase = Events, A extends ActionBase = Actions, R
         }
         this.obcs = []
     }
-    send(event:E) {
-        for (const obc of this.obcs){
+    send(event: Events) {
+        for (const obc of this.obcs) {
             obc.send(event)
         }
     }
