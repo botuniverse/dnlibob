@@ -1,7 +1,7 @@
 import { App } from './mod.ts'
 
 const app = new App({
-    info: {
+    basic: {
         onebotVersion: '12',
         impl: 'test',
         platform: 'test'

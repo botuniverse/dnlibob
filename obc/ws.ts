@@ -2,12 +2,14 @@
 import { App } from '../mod.ts'
 import { Events } from '../model/mod.ts'
 import { noEmptyStr } from '../utils.ts'
+import { decode as decodeMsgpack, encode as encodeMsgpack } from '../deps.ts'
 
 export interface WebSocketClientConfig {
     protocol: 'ws-reverse'
     url: string
     accessToken?: string
     reconnectInterval: number
+    sendMsgpack?: boolean
 }
 
 export interface WebSocketServerConfig {
@@ -15,24 +17,22 @@ export interface WebSocketServerConfig {
     host: string
     port: number
     accessToken?: string
+    sendMsgpack?: boolean
 }
 
 export class WebSocketClient {
     private socket?: WebSocket
     constructor(private app: App, private config: WebSocketClientConfig) {
     }
-    private encode(value: any) {
-        return JSON.stringify(value)
-    }
-    private decode(value: any) {
-        try {
-            return JSON.parse(value)
-        } catch (_e) {
-            return {}
+    private encode(value: any, isMsgpack = this.config.sendMsgpack) {
+        if (isMsgpack) {
+            return encodeMsgpack(value)
         }
+        return JSON.stringify(value)
     }
     private connect(url: string, interval: number) {
         const socket = new WebSocket(url, `${this.app.info.onebotVersion}.${this.app.info.impl}`)
+        socket.binaryType = 'arraybuffer'
         socket.onopen = async () => {
             const connectedHandler = this.app.connectedHandler
             if (connectedHandler) {
@@ -47,7 +47,7 @@ export class WebSocketClient {
             this.socket = socket
         }
         socket.onmessage = async (msg) => {
-            const data = this.decode(msg.data)
+            const { data, isMsgpack } = decode(msg.data)
             const actionHandler = this.app.actionHandler
             if (actionHandler) {
                 let resp
@@ -59,7 +59,7 @@ export class WebSocketClient {
                         'message': '无效的动作请求'
                     }
                 } else {
-                    resp = await actionHandler(data)
+                    resp = await actionHandler(data, isMsgpack)
                 }
                 if (noEmptyStr(data.echo)) {
                     resp = {
@@ -68,7 +68,7 @@ export class WebSocketClient {
                     }
                 }
                 if (socket.readyState === socket.OPEN) {
-                    socket.send(this.encode(resp))
+                    socket.send(this.encode(resp, isMsgpack))
                 }
             }
         }
@@ -106,15 +106,11 @@ export class WebSocketServer {
     private connections: Map<number, WebSocket> = new Map()
     constructor(private app: App, private config: WebSocketServerConfig) {
     }
-    private encode(value: any) {
-        return JSON.stringify(value)
-    }
-    private decode(value: any) {
-        try {
-            return JSON.parse(value)
-        } catch (_e) {
-            return {}
+    private encode(value: any, isMsgpack = this.config.sendMsgpack) {
+        if (isMsgpack) {
+            return encodeMsgpack(value)
         }
+        return JSON.stringify(value)
     }
     start(signal: AbortSignal) {
         let total = 0
@@ -155,6 +151,7 @@ export class WebSocketServer {
             const { socket, response } = Deno.upgradeWebSocket(req)
             total++
             const id = total
+            socket.binaryType = 'arraybuffer'
             socket.onopen = async () => {
                 const connectedHandler = this.app.connectedHandler
                 if (connectedHandler) {
@@ -169,7 +166,7 @@ export class WebSocketServer {
                 this.connections.set(id, socket)
             }
             socket.onmessage = async (msg) => {
-                const data = this.decode(msg.data)
+                const { data, isMsgpack } = decode(msg.data)
                 const actionHandler = this.app.actionHandler
                 if (actionHandler) {
                     let resp
@@ -181,7 +178,7 @@ export class WebSocketServer {
                             'message': '无效的动作请求'
                         }
                     } else {
-                        resp = await actionHandler(data)
+                        resp = await actionHandler(data, isMsgpack)
                     }
                     if (noEmptyStr(data.echo)) {
                         resp = {
@@ -190,7 +187,7 @@ export class WebSocketServer {
                         }
                     }
                     if (socket.readyState === socket.OPEN) {
-                        socket.send(this.encode(resp))
+                        socket.send(this.encode(resp, isMsgpack))
                     }
                 }
             }
@@ -214,5 +211,24 @@ export class WebSocketServer {
                 ws.send(this.encode(event))
             }
         })
+    }
+}
+
+function decode(value: any) {
+    let data
+    let isMsgpack = false
+    try {
+        if (value instanceof ArrayBuffer) {
+            isMsgpack = true
+            data = decodeMsgpack(new Uint8Array(value))
+        } else {
+            data = JSON.parse(value)
+        }
+    } catch (_e) {
+        data = {}
+    }
+    return {
+        data,
+        isMsgpack
     }
 }

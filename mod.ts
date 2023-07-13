@@ -8,24 +8,24 @@ import { Awaitable } from './utils.ts'
 export { Logger }
 
 export interface AppConfig {
-    info: {
+    basic: {
         onebotVersion: string
         impl: string
         platform: string
     }
     connect: (WebSocketClientConfig | WebSocketServerConfig)[]
     connectedHandler?: () => Awaitable<Events[]>
-    actionHandler: (data: Actions) => Awaitable<Resps>
+    actionHandler: (data: Actions, isMsgpack: boolean) => Awaitable<Resps>
 }
 
 export class App {
     private controller?: AbortController
     private obcs: Array<WebSocketClient | WebSocketServer> = []
-    public info: AppConfig['info']
+    public info: AppConfig['basic']
     public connectedHandler?: AppConfig['connectedHandler']
     public actionHandler?: AppConfig['actionHandler']
     constructor(private config: AppConfig) {
-        this.info = config.info
+        this.info = config.basic
         this.connectedHandler = config.connectedHandler
         this.actionHandler = config.actionHandler
     }
